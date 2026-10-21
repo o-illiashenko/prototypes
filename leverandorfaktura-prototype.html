@@ -648,7 +648,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
           <section class="c-card c-costs" id="costs" aria-labelledby="costsTitle">
             <div class="c-costs__head c-pad">
               <h2 class="c-costs__title" id="costsTitle">Kostnader</h2>
-              <button type="button" class="c-toggle" role="switch" aria-checked="true" id="incToggle"><span class="c-toggle__pill"></span><span id="incLabel">Inkluder ordrelinjer (39)</span></button>
+              <button type="button" class="c-toggle" role="switch" aria-checked="true" id="incToggle"><span class="c-toggle__pill"></span><span id="incLabel">Vis ordrelinjer (39)</span></button>
               <button type="button" class="c-btn c-btn--secondary c-btn--sm" id="linesBtn" data-act="lines-open" aria-haspopup="dialog" hidden>Vis ordrelinjer (39)</button>
               <button type="button" class="c-iconbtn c-iconbtn--sm" id="colsBtn" aria-label="Velg felt" aria-haspopup="dialog" aria-expanded="false"><svg class="i i20" aria-hidden="true" style="color:var(--icon-strong)"><use href="#i-gear"/></svg></button>
             </div>
@@ -885,7 +885,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   function invById(id) { for (var i = 0; i < INVOICES.length; i++) if (INVOICES[i].id === id) return INVOICES[i]; return null; }
 
   /* ---------- state: one per design variant and invoice, S and INV point at the open one ----------
-     Variant A: the «Inkluder ordrelinjer» toggle with Grupperte kostnader / Ordrelinjer tabs.
+     Variant A: the «Vis ordrelinjer» toggle with Grupperte kostnader / Ordrelinjer tabs.
      Variant B: costs are always grouped from the order lines, edited in a «Vis ordrelinjer» dialog. */
   var S = null, INV = null, STATES = {}, UNDOS = {}, DESIGN = 'A', DESIGNS = ['A', 'B', 'C'];
   function sk(id, d) { return (d || DESIGN) + ':' + id; }
@@ -1016,7 +1016,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var B = DESIGN === 'B', C = DESIGN === 'C';
     $('#incToggle').hidden = B;
     $('#incToggle').setAttribute('aria-checked', String(C ? !!S.showLines : S.include));
-    $('#incLabel').textContent = (C ? 'Vis ordrelinjer (' : 'Inkluder ordrelinjer (') + S.lines.length + ')';
+    $('#incLabel').textContent = (C ? 'Vis ordrelinjer (' : 'Vis ordrelinjer (') + S.lines.length + ')';
     var lb = $('#linesBtn'); lb.hidden = !B; lb.textContent = 'Vis ordrelinjer (' + S.lines.length + ')';
     if (!S.include || B || C) S.tab = 'grouped';
     var tabs = $('#tabs');
@@ -1607,7 +1607,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       '<div class="c-tf__quick" id="quick">' + chipsView() + '</div>' + regroupBtn() + '</div>';
   }
   function emptyView() {
-    if (!S.lines.length) return '<div class="c-empty c-pad"><strong>Ingen ordrelinjer</strong><span>' + (DESIGN !== 'A' ? 'Legg til en ordrelinje for å få en kostnad.' : 'Legg til en ordrelinje, eller slå av «Inkluder ordrelinjer» for å føre kostnadene direkte.') + '</span></div>';
+    if (!S.lines.length) return '<div class="c-empty c-pad"><strong>Ingen ordrelinjer</strong><span>' + (DESIGN !== 'A' ? 'Legg til en ordrelinje for å få en kostnad.' : 'Legg til en ordrelinje, eller slå av «Vis ordrelinjer» for å føre kostnadene direkte.') + '</span></div>';
     if (!visibleLines().length) return '<div class="c-empty c-pad"><strong>Ingen ordrelinjer passer</strong><span>Ingen treff på søket eller filteret.</span><button type="button" class="c-btn c-btn--secondary" data-act="reset-filter">Tilbakestill filter</button></div>';
     return '';
   }
@@ -2366,7 +2366,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     $('#postDoneText').textContent = 'Bokført som bilag nr. ' + INV.voucher;
     refreshPostErr();
   }
-  var VARIANTS = [['A', 'Bryter', 'bryteren «Inkluder ordrelinjer»'], ['B', 'Popup', 'knappen «Vis ordrelinjer» med popup'], ['C', 'Tabell', 'kostnadstabell med ordrelinjene under hver kostnad']];
+  var VARIANTS = [['A', 'Bryter', 'bryteren «Vis ordrelinjer»'], ['B', 'Popup', 'knappen «Vis ordrelinjer» med popup'], ['C', 'Tabell', 'kostnadstabell med ordrelinjene under hver kostnad']];
   function demoToDom() {
     $('#demoVariants').innerHTML = VARIANTS.map(function (v) {
       var on = v[0] === DESIGN;
