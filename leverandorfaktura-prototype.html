@@ -112,6 +112,9 @@ h1,h2,h3,p{margin:0}
 .c-pad{padding-inline:24px}
 .c-costs__head{display:flex;align-items:center;gap:24px;min-height:32px;flex-wrap:wrap;row-gap:8px}
 .c-costs__title{flex:1 1 auto;font-size:16px;line-height:1.3;font-weight:500}
+.c-costs__head.is-b{column-gap:8px}
+.c-costs__head.is-b .c-costs__title{flex:0 0 auto}
+.c-costs__head.is-b #colsBtn{margin-left:auto}
 .c-toggle{display:inline-flex;align-items:center;gap:8px;line-height:1.4;white-space:nowrap;border-radius:var(--radius)}
 .c-toggle__pill{position:relative;width:36px;height:18px;border-radius:var(--radius-full);background:var(--surface-neutral-active);flex:0 0 auto;transition:background .15s}
 .c-toggle__pill::after{content:"";position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:var(--radius-full);background:var(--surface-default);transition:left .15s}
@@ -464,6 +467,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 .c-tree .c-cf{flex:1 1 auto;min-width:0}
 /* «Omgrupper linjer» sits at the far right of the filter line, which stays in view while the table scrolls */
 .c-rgbtn{margin-left:auto}
+.c-tf__cols{margin-left:auto;color:var(--icon-strong)}
+.c-rgbtn ~ .c-tf__cols{margin-left:0}
 .c-costs__body.is-c #linesBar{position:sticky;top:0;z-index:4}
 .c-cf--pct{flex:0 0 88px;width:88px}
 .c-cf.is-error,.c-cf.is-error:hover,tbody tr:hover .c-cf.is-error,tbody tr:focus-within .c-cf.is-error:not(:focus-visible){border-color:var(--border-error)}
@@ -672,7 +677,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
             <div class="c-costs__head c-pad">
               <h2 class="c-costs__title" id="costsTitle">Kostnader</h2>
               <button type="button" class="c-toggle" role="switch" aria-checked="true" id="incToggle"><span class="c-toggle__pill"></span><span id="incLabel">Vis ordrelinjer (39)</span></button>
-              <button type="button" class="c-btn c-btn--secondary c-btn--sm" id="linesBtn" data-act="lines-open" aria-haspopup="dialog" hidden>Vis ordrelinjer (39)</button>
+              <button type="button" class="c-btn c-btn--tertiary c-btn--sm" id="linesBtn" data-act="lines-open" aria-haspopup="dialog" hidden>Vis ordrelinjer (39)</button>
               <button type="button" class="c-iconbtn c-iconbtn--sm" id="colsBtn" aria-label="Velg felt" aria-haspopup="dialog" aria-expanded="false"><svg class="i i20" aria-hidden="true" style="color:var(--icon-strong)"><use href="#i-gear"/></svg></button>
             </div>
             <div class="c-tabs c-pad" role="tablist" id="tabs" aria-label="Visning av kostnader">
@@ -1042,6 +1047,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     $('#incToggle').setAttribute('aria-checked', String(C ? !!S.showLines : S.include));
     $('#incLabel').textContent = 'Vis ordrelinjer (' + S.lines.length + ')';
     var lb = $('#linesBtn'); lb.hidden = !B; lb.textContent = 'Vis ordrelinjer (' + S.lines.length + ')';
+    $('#costs .c-costs__head').classList.toggle('is-b', B);
+    $('#colsBtn').hidden = C;   /* variant C: the field menu sits in the filter line, above the table */
     if (!S.include || B || C) S.tab = 'grouped';
     var tabs = $('#tabs');
     tabs.hidden = !S.include || B || C;
@@ -1772,7 +1779,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     }
     return '<div class="c-tf"><button type="button" class="c-btn c-btn--secondary" id="filterBtn" data-act="filter" data-fk="filter" aria-haspopup="dialog" aria-expanded="false">Filter' + ico('i-filter') + '</button>' +
       '<label class="c-tf__search"><span class="c-sr">Søk i ordrelinjer</span><input id="lineSearch" type="text" data-fk="search" placeholder="Search" value="' + esc(S.search) + '" autocomplete="off">' + ico('i-search') + '</label>' +
-      '<div class="c-tf__quick" id="quick">' + chipsView() + '</div>' + regroupBtn() + '</div>';
+      '<div class="c-tf__quick" id="quick">' + chipsView() + '</div>' + regroupBtn() +
+      (DESIGN === 'C' ? '<button type="button" class="c-iconbtn c-iconbtn--sm c-tf__cols" id="colsBtnC" data-fk="cols" aria-label="Velg felt" title="Velg felt" aria-haspopup="dialog" aria-expanded="false">' + ico('i-gear', 'i20') + '</button>' : '') + '</div>';
   }
   function emptyView() {
     if (!S.lines.length) return '<div class="c-empty c-pad"><strong>Ingen ordrelinjer</strong><span>' + (DESIGN !== 'A' ? 'Legg til en ordrelinje for å få en kostnad.' : 'Legg til en ordrelinje, eller slå av «Vis ordrelinjer» for å føre kostnadene direkte.') + '</span></div>';
@@ -2248,7 +2256,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     P = { type: 'menu', trigger: trigger, onChange: onChange };
     pop.className = 'c-pop c-menu'; pop.innerHTML = html; pop.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
-    placePop(trigger, 300, trigger.id === 'colsBtn');
+    placePop(trigger, 300, /^colsBtn/.test(trigger.id));
     var f = pop.querySelector('input,button'); if (f) f.focus();
   }
   function openColsMenu(btn) {
@@ -2260,6 +2268,10 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       /* re-invoicing is shown next to the project, so turning it on shows the project too */
       if (el.dataset.col === 'rebill' && el.checked && !S.cols.project) { S.cols.project = true; var pc = pop.querySelector('input[data-col="project"]'); if (pc) pc.checked = true; }
       render({ focus: null });
+      if (P && P.trigger && !document.contains(P.trigger)) {
+        var nt = document.getElementById(P.trigger.id);
+        if (nt) { P.trigger = nt; nt.setAttribute('aria-expanded', 'true'); placePop(nt, 300, true); }
+      }
     });
   }
   function openFilterMenu(btn) {
@@ -2763,7 +2775,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       return;
     }
     if (t.closest('#incToggle')) { if (DESIGN === 'C') toggleShowLines(); else toggleInclude(); return; }
-    if (t.closest('#colsBtn')) { openColsMenu($('#colsBtn')); return; }
+    var cbt = t.closest('#colsBtn, #colsBtnC'); if (cbt) { openColsMenu(cbt); return; }
     if (t.closest('#detailsToggle')) {
       S.details = !S.details;
       $('#details').classList.toggle('is-collapsed', !S.details);
@@ -2893,11 +2905,11 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (!P || pop.contains(e.target)) return;
     var r = P.trigger.getBoundingClientRect();
     if (r.bottom < 0 || r.top > window.innerHeight) closePop(false);
-    else placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), P.trigger.id === 'colsBtn');
+    else placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id));
   }, true);
   window.addEventListener('resize', function () {
     applyLayout(); pdfLayout();
-    if (P) placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), P.trigger.id === 'colsBtn');
+    if (P) placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id));
   });
   /* Re-fit the attachment when its panel changes size. The work waits for the next frame and only runs when
      the size really changed, so resizing the pages can never feed back into the observer
