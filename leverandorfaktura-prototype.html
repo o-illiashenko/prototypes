@@ -416,23 +416,15 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 .c-split__total{color:var(--text-muted)}
 /* ---------------- variant C: one cost table, order lines nested under their cost ---------------- */
 .c-ctable{min-width:var(--minw)}
-/* in a narrow column (attachment open on a laptop) the description gets less room, so account and VAT stay in view */
-.c-costs__body.is-c{container-type:inline-size}
-@container (max-width:759px){
-  .c-ctable.is-open{min-width:var(--minw-n)}
-  .c-ctable col.c-col-narrow{width:var(--w-n)!important}
-}
 .c-ctable.is-compact th.c-th-sel{padding:0 0 0 12px}
 .c-ctable.is-compact th.c-th-act{padding:0}
 /* copy of the table's scrollbar, kept in view above the «Bokfør» bar while the table is on screen */
-.c-tscroll{min-width:0}
+.c-tscroll{position:relative;min-width:0}
 .c-hbar{display:none}
 .c-tscroll.has-hbar .c-hbar{display:block;position:sticky;bottom:var(--act-h,0px);z-index:4;overflow-x:scroll;overflow-y:hidden;background:var(--surface-default)}
 .c-hbar>div{height:1px}
 .c-tscroll.has-hbar .c-tablewrap{scrollbar-width:none}
 .c-tscroll.has-hbar .c-tablewrap::-webkit-scrollbar{display:none}
-/* a line waiting to be regrouped: the fields that differ from its cost get a dot */
-.c-ctable td.is-changed .c-cf__val::before{content:"";display:inline-block;width:8px;height:8px;margin:0 4px 2px 0;border-radius:var(--radius-full);background:var(--surface-info-active);vertical-align:middle}
 /* row actions in the cost table are 32px, like the compact fields next to them */
 .c-ctable .c-iconbtn{width:32px;height:32px}
 .c-dot{flex:0 0 auto;display:inline-block;width:8px;height:8px;border-radius:var(--radius-full);background:var(--surface-info-active)}
@@ -453,7 +445,6 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 .c-ctable .c-stk0{left:0}
 .c-ctable .c-stk1{left:40px}
 .c-ctable th.c-stk0,.c-ctable th.c-stk1{z-index:3}
-.c-tablewrap.is-scrolled .c-stk-edge{box-shadow:0 0 10px 0 var(--overflow-shadow);clip-path:inset(0 -12px 0 0)}
 .c-cg__chev{flex:0 0 24px;width:24px;height:24px;display:grid;place-items:center;border-radius:var(--radius);color:var(--text-primary)}
 .c-cg__chev:hover{background:var(--action-tertiary-hover)}
 /* number of order lines in a cost: a chip, with a dot while some of them wait for «Omgrupper linjer» */
@@ -462,14 +453,69 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 .c-ctable:not(.is-open) .c-cg.is-new td{animation-name:c-flash-plain}
 @keyframes c-flash-row{0%{background:var(--surface-info-highlight)}100%{background:var(--surface-info-rest)}}
 @keyframes c-flash-plain{0%{background:var(--surface-info-highlight)}100%{background:var(--surface-default)}}
-/* order lines: the hierarchy is shown by indent only; their text starts 24px further in than the cost's */
-.c-tree{display:flex;align-items:center;gap:8px;padding-left:56px;min-width:0}
+/* order lines: the text lines up with the cost's name; the cost row's colour tells the two apart */
+.c-tree{display:flex;align-items:center;gap:8px;padding-left:32px;min-width:0}
 .c-tree .c-cf{flex:1 1 auto;min-width:0}
-/* «Omgrupper linjer» sits at the far right of the filter line, which stays in view while the table scrolls */
-.c-rgbtn{margin-left:auto}
-.c-tf__cols{margin-left:auto;color:var(--icon-strong)}
-.c-rgbtn ~ .c-tf__cols{margin-left:0}
+/* the filter line stays in view while the table scrolls: filter, search, grouping … full-width window, columns */
 .c-costs__body.is-c #linesBar{position:sticky;top:0;z-index:4}
+.c-tf__group{width:auto;flex:1 1 160px;max-width:240px;min-width:140px;padding:0 10px 0 16px}
+.c-costs__body.is-c .c-tf__search{width:auto;flex:1 1 140px;max-width:200px;min-width:120px}
+.c-costs__body.is-c .c-tf__quick{flex:0 1 auto}
+.c-tf__end{display:flex;align-items:center;gap:8px;margin-left:auto}
+.c-tf__end .c-iconbtn{color:var(--icon-strong)}
+/* two header rows as in Figma: «Kostnader» and «Viderefakturering» over their columns, then the column names */
+.c-ctable thead tr:last-child th{height:40px}
+.c-ctable thead td.c-thg{height:40px;padding:0;border-bottom:0;background:var(--surface-info-rest)}
+.c-ctable thead th.c-thg{height:40px;border-bottom:0}
+.c-ctable thead th.c-thg__label{position:relative;padding:0 16px;text-align:center}
+.c-ctable .c-thg__label::after{content:"";position:absolute;left:16px;right:16px;bottom:0;border-bottom:1px solid var(--border-muted)}
+/* the pinned description: the header text lines up with the text in the rows; its right edge can be dragged */
+.c-ctable.is-compact th.c-th-desc{padding:0 12px 0 6px}
+.c-th-desc__in{display:flex;align-items:center;gap:8px;min-width:0}
+.c-th-desc__in span{min-width:0;padding-left:11px;overflow:hidden;text-overflow:ellipsis}
+.c-colrs{position:absolute;top:0;right:0;bottom:0;width:12px;cursor:col-resize;touch-action:none;z-index:1}
+.c-colrs::after{content:"";position:absolute;top:8px;bottom:8px;right:4px;width:2px;border-radius:var(--radius-full);background:var(--border-focus);opacity:0}
+.c-ctable thead:hover .c-colrs::after,.c-colrs:focus-visible::after,.c-colrs.is-drag::after{opacity:1}
+.c-colrs:focus-visible{outline:2px solid var(--border-focus);outline-offset:-2px}
+body.is-resizing{cursor:col-resize;user-select:none}
+/* Atlas' overflow shadow, drawn once over the whole table height: right of the pinned description while
+   columns scroll under it, and at the right edge while more columns are hidden there.
+   A box next to each strip casts the shadow, and the 12px strip shows only the shadow */
+.c-sshadow,.c-tshadow{display:none;position:absolute;top:0;bottom:var(--sbw,0px);width:12px;overflow:hidden;pointer-events:none;z-index:3}
+.c-sshadow{left:var(--stkw,280px)}
+.c-tshadow{right:0}
+.c-sshadow::before,.c-tshadow::before{content:"";position:absolute;top:-12px;bottom:-12px;width:24px;box-shadow:0 0 10px 0 var(--overflow-shadow)}
+.c-sshadow::before{right:100%}
+.c-tshadow::before{left:100%}
+.c-tscroll.is-scrolled .c-sshadow,.c-tscroll.has-more .c-tshadow{display:block}
+/* «Ny ordrelinje» is the table's last row, pinned with the description, so the scrollbar comes after it */
+.c-ctable.is-compact tfoot td{height:56px;padding:0 8px 0 12px;background:var(--surface-default)}
+.c-foot--sum{justify-content:flex-end}
+/* the gear in variant C: columns by category, in two columns where there is room */
+.c-pop.c-colmenu{overflow-y:auto}
+.c-colmenu__cats{columns:2 180px;column-gap:24px}
+.c-colcat{break-inside:avoid;border:0;margin:0 0 8px;padding:0;min-width:0}
+.c-colcat legend{padding:0;width:100%}
+.c-colcat__head{font-weight:500}
+.c-colcat__row{padding-left:28px}
+.c-colmenu__foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
+/* «Periodiser» on a cost: the order lines to periodise, when only some of them are */
+.c-perscope legend{margin-bottom:8px}
+.c-perlines{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;padding:4px 8px;border:1px solid var(--border-muted);border-radius:var(--radius)}
+.c-perline{display:flex;align-items:center;gap:8px;min-height:32px;cursor:pointer}
+.c-perline__t{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-perline__a{flex:0 0 auto;font-variant-numeric:tabular-nums}
+/* group rows that are not costs are named after their account or project, and are not edited as text */
+.c-cg__name{flex:1 1 auto;min-width:0}
+.c-flat{display:flex;align-items:center;min-width:0}
+.c-flat .c-cf{flex:1 1 auto;min-width:0}
+.c-cf__val--r{text-align:right}
+.c-ctable .c-cl.is-new td{animation:c-flash-plain 1.6s ease-out}
+/* the same table in a full-width window («Åpne i stort vindu») */
+.c-cxdlg{width:100%;height:100%;max-height:none}
+.c-cxdlg__body{flex:1 1 auto;min-height:0;overflow:auto}
+.c-cxdlg__body .c-tf,.c-cxdlg__body .c-bulk{border-top:0}
+.c-cxdlg__body .c-foot{padding-block:16px}
 .c-cf--pct{flex:0 0 88px;width:88px}
 .c-cf.is-error,.c-cf.is-error:hover,tbody tr:hover .c-cf.is-error,tbody tr:focus-within .c-cf.is-error:not(:focus-visible){border-color:var(--border-error)}
 .c-stack[inert] .c-field,.c-stack[inert] .c-cf{background:var(--surface-disabled);border-color:var(--border-muted)}
@@ -575,6 +621,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     <symbol id="i-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
     <symbol id="i-warning" viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path fill="currentColor" d="M21 11V3h-8l3.29 3.29-10 10L3 13v8h8l-3.29-3.29 10-10L21 11z"/></symbol>
+    <symbol id="i-shrink" viewBox="0 0 24 24"><path fill="currentColor" d="M22 3.41 16.71 8.7 20 12h-8V4l3.29 3.29L20.59 2 22 3.41zM3.41 22l5.29-5.29L12 20v-8H4l3.29 3.29L2 20.59 3.41 22z"/></symbol>
     <symbol id="i-sortup" viewBox="0 0 24 24"><path fill="currentColor" d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></symbol>
     <symbol id="i-sortdown" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></symbol>
     <!-- module icons, colours from the Figma side menu -->
@@ -770,6 +818,15 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     </div>
   </div>
 </div>
+<div class="c-scrim c-scrim--lines" id="cxDlg" hidden>
+  <div class="c-modal c-cxdlg" role="dialog" aria-modal="true" aria-labelledby="cxTitle" aria-describedby="cxSub">
+    <div class="c-modal__head">
+      <div class="c-ldlg__title"><h2 id="cxTitle">Kostnader</h2><span id="cxSub"></span></div>
+      <button type="button" class="c-iconbtn" data-act="cx-close" aria-label="Lukk stort vindu"><svg class="i i24" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="c-cxdlg__body" id="cxBody"></div>
+  </div>
+</div>
 <div class="c-pop" id="pop" hidden></div>
 <div class="c-scrim" id="modal" hidden></div>
 <div class="c-toasts" id="toasts" aria-live="polite"></div>
@@ -842,12 +899,16 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   var DIMS = {
     project: { label: 'Prosjekt', none: 'Ingen prosjekt', list: [['P076', 'Julebord Nordvik AS'], ['P077', 'Bryllup Berg og Lie'], ['P078', 'Konferanse Holmenkollen']].map(idName) },
     dept: { label: 'Avdeling', none: 'Ingen avdeling', list: [['100', 'Kjøkken'], ['200', 'Servering'], ['300', 'Bar'], ['400', 'Catering']].map(idName) },
-    loc: { label: 'Lokasjon', none: 'Ingen lokasjon', list: [['L1', 'Grünerløkka'], ['L2', 'Majorstuen']].map(idName) }
+    loc: { label: 'Lokasjon', none: 'Ingen lokasjon', list: [['L1', 'Grünerløkka'], ['L2', 'Majorstuen']].map(idName) },
+    dim: { label: 'Dimensjon', none: 'Ingen dimensjon', list: [['D1', 'Region Øst'], ['D2', 'Region Vest'], ['D3', 'Region Nord']].map(idName) },
+    sub: { label: 'Underleveranse', none: 'Ingen underleveranse', list: [['U1', 'Task Fox AS'], ['U2', 'Nordvik Rør AS'], ['U3', 'Hansen Elektro AS']].map(idName) },
+    budget: { label: 'Budsjettpost', none: 'Ingen budsjettpost', list: [['B1', 'Materiell'], ['B2', 'Mat og drikke'], ['B3', 'Utstyr'], ['B4', 'Underentreprise']].map(idName) }
   };
+  var NAME_ONLY = { loc: 1, dim: 1, sub: 1, budget: 1 };   /* shown by name; project and department with their number */
   function dimLabel(d, id) {
     if (!id) return '';
     var it = DIMS[d].list.filter(function (x) { return x.id === id; })[0];
-    return it ? (d === 'loc' ? it.name : it.id + ' ' + it.name) : '';
+    return it ? (NAME_ONLY[d] ? it.name : it.id + ' ' + it.name) : '';
   }
   var PAYTYPES = [['1920', 'Brukskonto'], ['1921', 'Driftskonto']].map(idName);
   var PERIOD_ACCTS = [['1749', 'Andre forskuddsbetalte kostnader'], ['1700', 'Forskuddsbetalt leiekostnad']].map(idName);
@@ -866,6 +927,18 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     return MS[m] + ' ' + y + '–' + MS[m2] + ' ' + y2;
   }
   function periodKey(p) { return p ? p.from + '/' + p.months + '/' + p.acct : ''; }
+  /* the four fields of a periodisering, as stored and as shown in the table */
+  function perVal(p, f) {
+    if (!p) return '';
+    return f === 'pacct' ? p.acct : f === 'pmon' ? p.from.slice(5) : f === 'pyear' ? p.from.slice(0, 4) : String(p.months);
+  }
+  function capFirst(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function perText(p, f) {
+    if (!p) return '';
+    if (f === 'pacct') { var a = PERIOD_ACCTS.filter(function (x) { return x.id === p.acct; })[0]; return a ? a.id + ' ' + a.name : p.acct; }
+    if (f === 'pmon') return capFirst(MONTHS[+p.from.slice(5) - 1]);
+    return f === 'pyear' ? p.from.slice(0, 4) : String(p.months);
+  }
 
   /* ---------- the demo queue: two incoming invoices ----------
      Seed rows: [description, quantity, unit price in øre (may carry two extra decimals), VAT code, unit] */
@@ -918,7 +991,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   var S = null, INV = null, STATES = {}, UNDOS = {}, DESIGN = 'A', DESIGNS = ['A', 'B', 'C'];
   function sk(id, d) { return (d || DESIGN) + ':' + id; }
   function newLine(o) {
-    var l = { id: S.nextLine, nr: S.nextLine, desc: '', qty: 1, price: 0, net: 0, account: INV.account, vat: INV.vat, project: null, dept: null, loc: null, rebill: false, markup: '', period: null, tag: null };
+    var l = { id: S.nextLine, nr: S.nextLine, desc: '', qty: 1, price: 0, net: 0, account: INV.account, vat: INV.vat, project: null, dept: null, loc: null, dim: null, sub: null, budget: null, rebill: false, markup: '', discount: '', period: null, tag: null };
     S.nextLine++;
     for (var k in o) l[k] = o[k];
     return l;
@@ -929,6 +1002,31 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   }
   /* Start of the flow (page load and the Tripletex logo): each invoice as it arrives,
      one cost per account and VAT rate, and the order-line toggle off. */
+  /* Variant C: how the order lines are grouped in the table. Only the view changes: the ledger is always posted per coding. */
+  var C_GROUPINGS = [
+    { id: 'kontering', label: 'Gruppert per kontering', desc: 'Slik det føres i hovedboken: én postering per unik kombinasjon av konto, mva-kode og kostnadsbærere.' },
+    { id: 'konto', label: 'Gruppert per konto og mva-kode', desc: 'Prosjekt, avdeling og andre kostnadsbærere kan variere innenfor gruppen.' },
+    { id: 'prosjekt', label: 'Gruppert per prosjekt', desc: 'Nyttig når fakturaen fordeles på flere prosjekter.' },
+    { id: 'avdeling', label: 'Gruppert per avdeling', desc: 'Nyttig når fakturaen fordeles på flere avdelinger.' },
+    { id: 'ingen', label: 'Uten gruppering', desc: 'Alle ordrelinjene i én liste.' }
+  ];
+  var C_DESC_W = 240, C_DESC_MIN = 160, C_DESC_MAX = 640;
+  /* the gear in variant C: the columns that can be shown or hidden, by category and in table order.
+     Beskrivelse, Beløp ekskl. mva, Regnskapskonto and Mva-kode are always there */
+  var C_COL_CATS = [
+    { id: 'amount', label: 'Antall og pris', cols: [['qty', 'Antall'], ['price', 'Enhetspris']] },
+    { id: 'p', label: 'Periodisering', cols: [['pacct', 'Periodiseringskonto'], ['pmon', 'Startmåned'], ['pyear', 'År'], ['pcount', 'Antall måneder']] },
+    { id: 'k', label: 'Kostnader', cols: [['dept', 'Avdeling'], ['dim', 'Dimensjon'], ['project', 'Prosjekt'], ['sub', 'Underleveranse'], ['budget', 'Budsjettpost']] },
+    { id: 'v', label: 'Viderefakturering', cols: [['markup', 'Påslag'], ['rprice', 'Enhetspris'], ['ramount', 'Beløp'], ['discount', 'Rabatt']] }
+  ];
+  /* re-invoicing shows only the markup until more is asked for; periodisering shows once a cost is periodised */
+  function cDefaultCols() {
+    return { qty: true, price: true, pacct: false, pmon: false, pyear: false, pcount: false, dept: true, dim: true, project: true, sub: true, budget: true, markup: true, rprice: false, ramount: false, discount: false, loc: false };
+  }
+  /* periodisering belongs to a cost (one posting), in the four fields of the posting: account, start month, year, months */
+  var C_PERIOD = [{ id: 'pacct', label: 'Periodiseringskonto', w: 200 }, { id: 'pmon', label: 'Startmåned', w: 136 }, { id: 'pyear', label: 'År', w: 96 }, { id: 'pcount', label: 'Antall måneder', w: 148 }];
+  var PER_F = { pacct: 1, pmon: 1, pyear: 1, pcount: 1 };
+  var C_PER_DEFAULT = { from: '2026-10', months: 12, acct: '1749' };
   function freshState(inv, design) {
     var keepS = S, keepI = INV;
     INV = inv;
@@ -943,7 +1041,10 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (design === 'A') { S.manual = getGroups().map(costFromGroup); S.include = false; }
     if (design === 'C') {
       /* variant C names the costs, so the rows can be told apart in one table */
-      S.showLines = true; S.cOpen = new Set(); S.cols.project = true;   /* no toggle: the lines are always there, every cost starts collapsed */
+      S.showLines = true; S.cOpen = new Set();   /* no toggle: the lines are always there, every cost starts collapsed */
+      /* the columns of the Figma table (15817:39769), with re-invoicing shown as the markup only */
+      S.cols = cDefaultCols();
+      S.cGroup = 'kontering'; S.cDescW = C_DESC_W;
       S.lines.forEach(function (l) { l.home = keyOf(l); });
       getGroups().forEach(function (g) { var nm = inv.names && inv.names[g.vat]; if (nm) S.desc[g.key] = nm; });
     }
@@ -958,7 +1059,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   function lineById(id) { for (var i = 0; i < S.lines.length; i++) if (S.lines[i].id === id) return S.lines[i]; return null; }
   function keyOf(o) {
     /* split: a copied cost (variant C) stays its own cost until one of its fields is changed */
-    return [o.account || '', o.vat || '', o.project || '', o.dept || '', o.loc || '', periodKey(o.period), (!o.account || !o.vat) && o.tag ? o.tag : ''].join('|') + (o.split ? '|s' + o.split : '');
+    return [o.account || '', o.vat || '', o.project || '', o.dept || '', o.loc || '', periodKey(o.period), (!o.account || !o.vat) && o.tag ? o.tag : '', o.dim || '', o.sub || '', o.budget || ''].join('|') + (o.split ? '|s' + o.split : '');
   }
   function vatOf(net, code) { var bp = VAT[code] ? VAT[code].bp : 0; return Math.round(net * bp / 10000); }
   function getGroups() {
@@ -1043,6 +1144,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var tw = $('#tablewrap'), sl = tw ? tw.scrollLeft : 0;
 
     var B = DESIGN === 'B', C = DESIGN === 'C';
+    if (C) cSettle();   /* lines always sit under the cost their coding belongs to */
     $('#incToggle').hidden = B || C;
     $('#incToggle').setAttribute('aria-checked', String(C ? !!S.showLines : S.include));
     $('#incLabel').textContent = 'Vis ordrelinjer (' + S.lines.length + ')';
@@ -1059,11 +1161,11 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     body.setAttribute('aria-labelledby', tabs.hidden ? 'costsTitle' : (S.tab === 'lines' ? 'tabLines' : 'tabGrouped'));
     body.innerHTML = C ? cView() : ((S.include && S.tab === 'lines') ? linesView() : groupedView());
     if (B && LD.open) { var ld = $('#ldBody'), lt = ld.scrollTop; ld.innerHTML = linesView(); ld.scrollTop = lt; $('#ldSum').innerHTML = ldSumHtml(); }
-    var tw2 = $('#tablewrap'); if (tw2) { tw2.scrollLeft = sl; tw2.classList.toggle('is-scrolled', tw2.scrollLeft > 0); }
+    var tw2 = $('#tablewrap'); if (tw2) tw2.scrollLeft = sl;
     syncHbar();
     syncSelAll(); syncGroupSel(); syncMixed();
     refreshPostErr();
-    S.flash = null;
+    S.flash = null; S.flashLine = null;
     if (fk) {
       var el = document.querySelector('[data-fk="' + fk + '"]');
       if (el) {
@@ -1116,27 +1218,58 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   function attrsOfKey(k) {
     var p = String(k).split('|'), per = null;
     if (p[5]) { var q = p[5].split('/'); per = { from: q[0], months: +q[1], acct: q[2] }; }
-    return { account: p[0] || null, vat: p[1] || null, project: p[2] || null, dept: p[3] || null, loc: p[4] || null, period: per, tag: p[6] || null, split: p[7] ? p[7].slice(1) : null };
+    return { account: p[0] || null, vat: p[1] || null, project: p[2] || null, dept: p[3] || null, loc: p[4] || null, period: per, tag: p[6] || null,
+      dim: p[7] || null, sub: p[8] || null, budget: p[9] || null, split: p[10] ? p[10].slice(1) : null };
   }
   function homeOf(l) { if (l.home == null) l.home = keyOf(l); return l.home; }
   function isPending(l) { return keyOf(l) !== homeOf(l); }
   function pendingLines() { return S.lines.filter(isPending); }
-  function cGroups() {
+  /* Variant C groups the order lines in one of four ways (S.cGroup). Only the table changes: the ledger is
+     always posted per coding, so the amount with VAT of a group is the sum of the postings in it. */
+  function cMode() { return S.cGroup || 'kontering'; }
+  function cViewMode() { return cMode() === 'ingen' ? 'kontering' : cMode(); }   /* lines without grouping still filter per cost */
+  function groupKeyOf(l, mode) {
+    if (mode === 'konto') return 'a|' + (l.account || '') + '|' + (l.vat || '');
+    if (mode === 'prosjekt') return 'p|' + (l.project || '');
+    if (mode === 'avdeling') return 'd|' + (l.dept || '');
+    return homeOf(l);
+  }
+  function viewKeyOf(l) { return groupKeyOf(l, cViewMode()); }
+  var C_FIELDS = ['account', 'vat', 'project', 'dept', 'dim', 'sub', 'budget', 'loc'];
+  function cGroupsBy(mode) {
     var map = new Map(), order = [], truth = {};
     getGroups().forEach(function (g) { truth[g.key] = g; });
-    S.lines.forEach(function (l) { var k = homeOf(l); if (!map.has(k)) { map.set(k, []); order.push(k); } map.get(k).push(l); });
+    S.lines.forEach(function (l) { var k = groupKeyOf(l, mode); if (!map.has(k)) { map.set(k, []); order.push(k); } map.get(k).push(l); });
     return order.map(function (k, i) {
-      var lines = map.get(k), a = attrsOfKey(k), t = truth[k];
-      var g = { key: k, idx: i, lines: lines, account: a.account, vat: a.vat, project: a.project, dept: a.dept, loc: a.loc, period: a.period, tag: a.tag };
+      var lines = map.get(k), g = { key: k, idx: i, lines: lines, kind: mode, mixed: {} };
+      if (mode === 'kontering') {
+        var a = attrsOfKey(k);
+        C_FIELDS.forEach(function (f) { g[f] = a[f]; });
+        g.period = a.period; g.tag = a.tag;
+        g.desc = S.desc[k] != null ? S.desc[k] : INV.desc;
+      } else {
+        /* a field the lines do not share shows «Flere» on the group row; picking a value sets it on every line */
+        C_FIELDS.forEach(function (f) {
+          var v = lines[0][f] || null;
+          if (lines.some(function (l) { return (l[f] || null) !== v; })) { g.mixed[f] = true; g[f] = null; } else g[f] = v;
+        });
+        var pk = periodKey(lines[0].period);
+        g.period = lines.every(function (l) { return periodKey(l.period) === pk; }) ? lines[0].period : null;
+        if (!g.period && lines.some(function (l) { return l.period; })) g.mixed.period = true;
+        var acc = ACCOUNTS.filter(function (x) { return x.no === g.account; })[0];
+        /* konto og mva-kode: the rate first, then the account as it reads everywhere else, number and name */
+        var rate = g.vat ? pctTxt(VAT[g.vat].rate) + ' %' : 'Uten mva-kode';
+        g.desc = mode === 'konto' ? rate + ' · ' + (acc ? acc.no + ' ' + acc.name : 'uten konto')
+          : mode === 'avdeling' ? (g.dept ? dimLabel('dept', g.dept) : 'Uten avdeling')
+          : (g.project ? dimLabel('project', g.project) : 'Uten prosjekt');
+      }
       g.net = lines.reduce(function (s, l) { return s + l.net; }, 0);
-      g.pending = lines.filter(isPending).length;
-      /* the posted amount once the lines sit where they belong; an estimate while lines are waiting */
-      g.gross = (t && t.lines.length === lines.length && !g.pending) ? t.gross
-        : Math.round(lines.reduce(function (s, l) { return s + l.net + l.net * (VAT[l.vat] ? VAT[l.vat].bp : 0) / 10000; }, 0));
-      g.desc = S.desc[k] != null ? S.desc[k] : INV.desc;
+      var seen = {}; g.gross = 0;
+      lines.forEach(function (l) { var kk = keyOf(l); if (!seen[kk]) { seen[kk] = 1; g.gross += truth[kk] ? truth[kk].gross : 0; } });
       return g;
     });
   }
+  function cGroups() { return cGroupsBy(cViewMode()); }
   function cGroup(k) { return cGroups().filter(function (g) { return g.key === k; })[0] || null; }
   function cTarget(l, groups) { var k = keyOf(l); for (var i = 0; i < groups.length; i++) if (groups[i].key === k) return groups[i]; return null; }
   /* What a project gets for a cost: the cost as one line ('cost') or every order line ('lines'). One setting
@@ -1152,146 +1285,198 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (a.project !== b.project) return b.project ? dimLabel('project', b.project) : 'uten prosjekt';
     if (a.dept !== b.dept) return b.dept ? dimLabel('dept', b.dept) : 'uten avdeling';
     if (a.loc !== b.loc) return b.loc ? dimLabel('loc', b.loc) : 'uten lokasjon';
+    if (a.dim !== b.dim) return b.dim ? dimLabel('dim', b.dim) : 'uten dimensjon';
+    if (a.sub !== b.sub) return b.sub ? dimLabel('sub', b.sub) : 'uten underleveranse';
+    if (a.budget !== b.budget) return b.budget ? dimLabel('budget', b.budget) : 'uten budsjettpost';
     if (a.account !== b.account) return b.account ? (short ? 'konto ' + b.account : accLabel(b.account)) : 'uten konto';
     if (a.vat !== b.vat) return b.vat ? pctTxt(VAT[b.vat].rate) + ' % mva' : 'uten mva-kode';
     if (periodKey(a.period) !== periodKey(b.period)) return b.period ? 'periodisert ' + periodLabel(b.period) : 'uten periodisering';
     return '';
   }
 
+  /* Columns as in the Figma table (15817:39769): description, amounts, coding, the cost carriers under
+     «Kostnader» and the re-invoicing block under «Viderefakturering». The description is pinned and can be resized. */
+  var C_CARRIERS = ['dept', 'dim', 'project', 'sub', 'budget'];
   function cCols() {
-    /* Collapsed: the costs only. Open: the order lines under each cost, with the first columns pinned.
-       Coding first (account, VAT, project …), amounts last.
-       «narrow» is the description width when the table sits in a narrow column (container query in the CSS). */
-    var open = !!S.showLines, cols = open ? [{ id: 'sel', w: 40 }] : [];
-    cols.push(open ? { id: 'desc', label: 'Beskrivelse', w: 300, narrow: 240 } : { id: 'desc', label: 'Beskrivelse', min: 120 },
-      { id: 'account', label: 'Kostnadskonto', w: open ? 200 : 140 }, { id: 'vat', label: 'Mva-kode', w: open ? 116 : 100 });
-    if (S.cols.project) cols.push({ id: 'project', label: 'Prosjekt', w: open ? 210 : 160 });
-    if (S.cols.project && S.cols.rebill) cols.push({ id: 'rebill', label: 'Viderefakturer', w: 140 });
-    OPT_COLS.forEach(function (c) { if ((c.id === 'dept' || c.id === 'loc' || c.id === 'period') && S.cols[c.id]) cols.push(c); });
-    if (open) cols.push({ id: 'qty', label: 'Antall', w: 80, right: true }, { id: 'price', label: 'Enhetspris', w: 132, right: true }, { id: 'net', label: 'Beløp ekskl. mva', w: 148, right: true });
-    cols.push({ id: 'gross', label: 'Beløp inkl. mva', w: 140, right: true }, { id: 'cact', w: 120 });
+    var cols = [{ id: 'sel', w: 40 }, { id: 'desc', label: 'Beskrivelse', w: S.cDescW || C_DESC_W }];
+    if (S.cols.qty) cols.push({ id: 'qty', label: 'Antall', w: 120, right: true });
+    if (S.cols.price) cols.push({ id: 'price', label: 'Enhetspris', w: 150, right: true });
+    cols.push({ id: 'net', label: 'Beløp ekskl. mva', w: 180, right: true }, { id: 'account', label: 'Regnskapskonto', w: 200 }, { id: 'vat', label: 'Mva-kode', w: 126 });
+    C_PERIOD.forEach(function (c) { if (S.cols[c.id]) cols.push({ id: c.id, label: c.label, w: c.w, grp: 'p' }); });
+    C_CARRIERS.forEach(function (d) { if (S.cols[d]) cols.push({ id: d, label: DIMS[d].label, w: 180, grp: 'k' }); });
+    /* «Påslag» holds the tick that re-invoices a line and its markup; price, amount and discount are extras */
+    if (S.cols.markup) cols.push({ id: 'markup', label: 'Påslag', w: 132, grp: 'v' });
+    if (S.cols.rprice) cols.push({ id: 'rprice', label: 'Enhetspris', w: 136, right: true, grp: 'v' });
+    if (S.cols.ramount) cols.push({ id: 'ramount', label: 'Beløp', w: 136, right: true, grp: 'v' });
+    if (S.cols.discount) cols.push({ id: 'discount', label: 'Rabatt', w: 98, right: true, grp: 'v' });
+    cols.push({ id: 'cact', w: 120 });
     return cols;
   }
-  function stk(id) { return id === 'sel' ? ' c-stk0' : (id === 'desc' ? (S.showLines ? ' c-stk1' : ' c-stk0') + ' c-stk-edge' : ''); }
+  var C_GROUP_LABEL = { k: 'Kostnader', v: 'Viderefakturering', p: 'Periodisering' };
+  function stk(id) { return id === 'sel' ? ' c-stk0' : (id === 'desc' ? ' c-stk1' : ''); }
+  function cHead(cols) {
+    var top = '';
+    if (cols.some(function (c) { return c.grp; })) {
+      var cells = [], i = 0;
+      while (i < cols.length) {
+        var c = cols[i], n = 0;
+        if (c.id === 'sel' || c.id === 'desc') { cells.push('<td class="c-thg' + stk(c.id) + '" aria-hidden="true"></td>'); i++; continue; }
+        if (c.grp) {
+          while (i + n < cols.length && cols[i + n].grp === c.grp) n++;
+          cells.push('<th scope="colgroup" colspan="' + n + '" class="c-thg c-thg__label"><span>' + C_GROUP_LABEL[c.grp] + '</span></th>');
+        } else {
+          while (i + n < cols.length && !cols[i + n].grp) n++;
+          cells.push('<td class="c-thg" colspan="' + n + '" aria-hidden="true"></td>');
+        }
+        i += n;
+      }
+      top = '<tr class="c-thg-row">' + cells.join('') + '</tr>';
+    }
+    return '<thead>' + top + '<tr>' + cols.map(cTh).join('') + '</tr></thead>';
+  }
   function cTh(c) {
     if (c.id === 'sel') return '<th class="c-th-sel c-stk0" scope="col"><input type="checkbox" class="c-check" id="selAll" data-fk="sel-all" aria-label="Velg alle synlige ordrelinjer"></th>';
-    if (c.id === 'desc') return '<th scope="col" class="' + stk('desc').trim() + '">' + c.label + '</th>';
+    if (c.id === 'desc') {
+      var gs = cMode() === 'ingen' ? [] : cGroups(), all = gs.length > 0 && gs.every(function (g) { return S.cOpen.has(g.key); });
+      var tog = gs.length ? '<button type="button" class="c-cg__chev" data-act="c-toggle-all" data-fk="c-all" aria-expanded="' + all + '" aria-label="' + (all ? 'Skjul alle ordrelinjer' : 'Vis alle ordrelinjer') + '" title="' + (all ? 'Skjul alle ordrelinjer' : 'Vis alle ordrelinjer') + '">' + ico(all ? 'i-chev20' : 'i-chevright') + '</button>' : '';
+      var w = S.cDescW || C_DESC_W;
+      return '<th scope="col" class="c-th-desc' + stk('desc') + '"><div class="c-th-desc__in' + (tog ? ' has-tog' : '') + '">' + tog + '<span>' + c.label + '</span></div>' +
+        '<span class="c-colrs" role="separator" aria-orientation="vertical" aria-label="Bredde på kolonnen Beskrivelse" aria-valuemin="' + C_DESC_MIN + '" aria-valuemax="' + C_DESC_MAX + '" aria-valuenow="' + w + '" tabindex="0" data-fk="desc-rs" title="Dra for å endre bredden. Dobbeltklikk for standardbredde."></span></th>';
+    }
     if (c.id === 'cact') return '<th class="c-th-act" scope="col"><span class="c-sr">Handlinger</span></th>';
     return '<th scope="col" class="' + (c.right ? 'r' : '') + '">' + c.label + '</th>';
   }
+  /* a markup or discount in percent; the field only takes input while the line is re-invoiced */
+  function pctCell(fk, ref, field, val, dis, label) {
+    return '<label class="c-cf c-cf--right' + (dis ? ' is-disabled' : '') + '"><input type="text" class="num" data-fk="' + fk + '" ' + ref + ' data-field="' + field + '" value="' + esc(val) + '" inputmode="decimal" aria-label="' + label + '"' + (dis ? ' disabled' : '') + ' autocomplete="off"><span aria-hidden="true">%</span></label>';
+  }
+  function calcCell(attrs, text) {
+    return '<span class="c-cf c-cf--amount is-static"><span class="c-cf__cur">NOK</span><span class="c-cf__val c-cf__val--r" ' + attrs + '>' + text + '</span></span>';
+  }
+  var C_DASH = '<td><span class="c-cf is-static"><span class="c-cf__val is-empty">–</span></span></td>';
+  var PER_HINT = 'Periodisering settes på kostnaden. Velg «Gruppert per kontering» for å endre den.';
+  /* periodisering is set on a cost; a group of another kind shows what its lines have and says where to change it */
+  function cPerCell(g, f, p, ref, kont) {
+    var per = g.period;
+    if (!kont) return '<span class="c-cf is-static" title="' + esc(PER_HINT) + '"><span class="c-cf__val' + (per ? '' : ' is-empty') + '">' + esc(per ? perText(per, f) : (g.mixed.period ? 'Flere' : '–')) + '</span></span>';
+    var lbl = { pacct: 'Periodiseringskonto', pmon: 'Startmåned', pyear: 'År', pcount: 'Antall måneder' }[f];
+    return cellSel(p, f, ref, per ? perText(per, f) : '', f === 'pacct' ? 'Ingen' : '–', lbl + ' for ' + g.desc, null, false, f === 'pacct' ? 'cpacct' : f);
+  }
   function cGroupRow(g, cols) {
-    var p = 'cg' + g.idx, ref = 'data-scope="cgroup" data-ref="' + esc(g.key) + '"', open = cIsOpen(g.key);
+    var p = 'cg' + g.idx, ref = 'data-scope="cgroup" data-ref="' + esc(g.key) + '"', open = cIsOpen(g.key), kont = g.kind === 'kontering';
     var n = g.lines.length, err = function (v) { return S.showErr && !v; };
     var cls = 'c-cg' + (flashHas(g.key) ? ' is-new' : '');
-    var dash = '<td><span class="c-cf is-static"><span class="c-cf__val is-empty">–</span></span></td>';
+    var what = kont ? 'kostnaden' : 'gruppen';
     return '<tr class="' + cls + '" data-group="' + esc(g.key) + '">' + cols.map(function (c) {
       switch (c.id) {
         case 'sel': return '<td class="c-td-sel c-stk0"><input type="checkbox" class="c-check" data-act="selgroup" data-ref="' + esc(g.key) + '" data-fk="' + p + '-sel" aria-label="Velg alle ordrelinjer i ' + esc(g.desc) + '"></td>';
         case 'desc':
-          var chev = S.showLines ? '<button type="button" class="c-cg__chev" data-act="c-collapse" data-ref="' + esc(g.key) + '" data-fk="' + p + '-chev" aria-expanded="' + open + '" aria-label="' + (open ? 'Skjul' : 'Vis') + ' ordrelinjene i ' + esc(g.desc) + '">' + ico(open ? 'i-chev20' : 'i-chevright') + '</button>' : '';
-          /* open table: the number of order lines as a chip, with a dot while some of them wait for «Omgrupper linjer» */
-          var ct = nLines(n) + (g.pending ? ', ' + g.pending + ' endret' : '');
-          var chip = S.showLines ? '<span class="c-cgn" title="' + ct + '">' + (g.pending ? '<span class="c-dot" aria-hidden="true"></span>' : '') + '<span aria-hidden="true">' + n + '</span><span class="c-sr">' + ct + '</span></span>' : '';
-          return '<td class="' + stk('desc').trim() + '"><div class="c-cg__desc">' + chev + '<label class="c-cf"><input type="text" data-fk="' + p + '-desc" ' + ref + ' data-field="desc" value="' + esc(g.desc) + '" aria-label="Beskrivelse for kostnaden" autocomplete="off"></label>' + chip + '</div></td>';
-        case 'account': return '<td>' + cellSel(p, 'account', ref, accLabel(g.account), 'Velg konto', 'Kostnadskonto for hele kostnaden', null, err(g.account)) + '</td>';
-        case 'vat': return '<td>' + cellSel(p, 'vat', ref, vatRate(g.vat), 'Velg', 'Mva-kode for hele kostnaden', vatLong(g.vat), err(g.vat)) + '</td>';
-        case 'qty': case 'price': return '<td></td>';
-        case 'net': return '<td class="r num c-cg__amt">' + fmt(g.net) + '</td>';
-        case 'project': return '<td>' + cellSel(p, 'project', ref, dimLabel('project', g.project), '–', 'Prosjekt for hele kostnaden', g.project ? dimLabel('project', g.project) : null) + '</td>';
-        case 'dept': case 'loc': return '<td>' + cellSel(p, c.id, ref, dimLabel(c.id, g[c.id]), '–', DIMS[c.id].label + ' for hele kostnaden') + '</td>';
-        case 'rebill':
-          if (!g.project) return dash;
-          /* ticked: every line is re-invoiced; a dash in the box: some of the lines (when the project gets every line) */
-          var rc = rbCount(g), mk = rc ? rbMarkup(g) : '';
+          var chev = '<button type="button" class="c-cg__chev" data-act="c-collapse" data-ref="' + esc(g.key) + '" data-fk="' + p + '-chev" aria-expanded="' + open + '" aria-label="' + (open ? 'Skjul' : 'Vis') + ' ordrelinjene i ' + esc(g.desc) + '">' + ico(open ? 'i-chev20' : 'i-chevright') + '</button>';
+          var chip = '<span class="c-cgn" title="' + nLines(n) + '"><span aria-hidden="true">' + n + '</span><span class="c-sr">' + nLines(n) + '</span></span>';
+          /* a cost has its own text; groups of another kind are named after their account or project */
+          var name = kont ? '<label class="c-cf"><input type="text" data-fk="' + p + '-desc" ' + ref + ' data-field="desc" value="' + esc(g.desc) + '" aria-label="Beskrivelse for kostnaden" autocomplete="off"></label>'
+            : '<span class="c-cf is-static c-cg__name" title="' + esc(g.desc) + '"><span class="c-cf__val">' + esc(g.desc) + '</span></span>';
+          return '<td class="' + stk('desc').trim() + '"><div class="c-cg__desc">' + chev + name + chip + '</div></td>';
+        case 'qty': case 'price': case 'rprice': return '<td></td>';
+        case 'net':
+          if (n === 1) return '<td><label class="c-cf c-cf--amount"><span class="c-cf__cur">NOK</span><input type="text" class="num" data-fk="' + p + '-net" ' + ref + ' data-field="net" value="' + fmt(g.net) + '" inputmode="decimal" aria-label="Beløp ekskl. mva for ' + what + '" autocomplete="off"></label></td>';
+          return '<td class="r num c-cg__amt" data-calc="gnet" data-key="' + esc(g.key) + '" title="Summen av ' + nLines(n) + '">' + fmt(g.net) + '</td>';
+        case 'account': return '<td>' + cellSel(p, 'account', ref, accLabel(g.account), g.mixed.account ? 'Flere' : 'Velg konto', 'Regnskapskonto for hele ' + what, null, err(g.account) && !g.mixed.account) + '</td>';
+        case 'vat': return '<td>' + cellSel(p, 'vat', ref, vatShort(g.vat), g.mixed.vat ? 'Flere' : 'Velg', 'Mva-kode for hele ' + what, vatLong(g.vat), err(g.vat) && !g.mixed.vat) + '</td>';
+        case 'dept': case 'dim': case 'project': case 'sub': case 'budget':
+          return '<td>' + cellSel(p, c.id, ref, dimLabel(c.id, g[c.id]), g.mixed[c.id] ? 'Flere' : '–', DIMS[c.id].label + ' for hele ' + what, g[c.id] ? dimLabel(c.id, g[c.id]) : null) + '</td>';
+        case 'markup':
+          if (!g.project) return C_DASH;
+          var rc = rbCount(g), rcOn = rc > 0;
           return '<td><div class="c-rebill"><input type="checkbox" class="c-check" data-act="rebill-cost" ' + ref + ' data-fk="' + p + '-rebill"' + (rc === n ? ' checked' : '') + (rc && rc < n ? ' data-mixed="1"' : '') + ' aria-label="Viderefakturer ' + esc(g.desc) + '">' +
-            '<label class="c-cf c-cf--right c-cf--pct' + (rc ? '' : ' is-disabled') + '"><input type="text" class="num" data-fk="' + p + '-markup" ' + ref + ' data-field="markup" value="' + esc(mk) + '" inputmode="decimal" aria-label="Påslag i prosent for ' + esc(g.desc) + '"' + (rc ? '' : ' disabled') + ' autocomplete="off"><span aria-hidden="true">%</span></label></div></td>';
-        case 'period': return '<td><span class="c-cf is-static"><span class="c-cf__val' + (g.period ? '' : ' is-empty') + '">' + (g.period ? esc(periodLabel(g.period)) : '–') + '</span></span></td>';
-        case 'gross':
-          if (n === 1 && !g.pending) return '<td><label class="c-cf c-cf--amount"><span class="c-cf__cur">NOK</span><input type="text" class="num" data-fk="' + p + '-gross" ' + ref + ' data-field="gross" value="' + fmt(g.gross) + '" inputmode="decimal" aria-label="Beløp inkl. mva for kostnaden" autocomplete="off"></label></td>';
-          return '<td class="r num c-cg__amt" title="Summen av ' + nLines(n) + '">' + fmt(g.gross) + '</td>';
+            pctCell(p + '-markup', ref, 'markup', rcOn ? gPct(g, 'markup') : '', !rcOn, 'Påslag i prosent for ' + esc(g.desc)) + '</div></td>';
+        case 'discount':
+          if (!g.project) return '<td></td>';
+          var on = rbCount(g) > 0;
+          return '<td>' + pctCell(p + '-discount', ref, 'discount', on ? gPct(g, 'discount') : '', !on, 'Rabatt i prosent for ' + esc(g.desc)) + '</td>';
+        case 'ramount':
+          var ra = gResale(g);
+          return '<td class="r num c-cg__amt" data-calc="gramount" data-key="' + esc(g.key) + '">' + (ra == null ? '' : fmt(ra)) + '</td>';
+        case 'pacct': case 'pmon': case 'pyear': case 'pcount': return '<td>' + cPerCell(g, c.id, p, ref, kont) + '</td>';
         case 'cact':
-          /* periodise, copy, delete: copy and delete line up with the same actions on the order lines */
-          return '<td class="c-td-act"><div class="c-rowacts"><button type="button" class="c-iconbtn" data-act="period-cost" ' + ref + ' data-fk="' + p + '-per" aria-label="Periodiser ' + esc(g.desc) + '" title="Periodiser">' + ico('i-calendar', 'i24') + '</button>' +
-            '<button type="button" class="c-iconbtn" data-act="copy-cost" ' + ref + ' data-fk="' + p + '-copy" aria-label="Kopier kostnaden ' + esc(g.desc) + '" title="Kopier">' + ico('i-copy', 'i24') + '</button>' +
-            '<button type="button" class="c-iconbtn" data-act="delete-cost" ' + ref + ' data-fk="' + p + '-del" aria-label="Slett kostnaden ' + esc(g.desc) + '" title="Slett">' + ico('i-trash24', 'i24') + '</button></div></td>';
+          /* periodise (a cost only), copy, delete: copy and delete line up with the same actions on the order lines */
+          return '<td class="c-td-act"><div class="c-rowacts">' + (kont ? '<button type="button" class="c-iconbtn" data-act="period-cost" ' + ref + ' data-fk="' + p + '-per" aria-label="Periodiser ' + esc(g.desc) + '" title="Periodiser">' + ico('i-calendar', 'i24') + '</button>' : '') +
+            (kont ? '<button type="button" class="c-iconbtn" data-act="copy-cost" ' + ref + ' data-fk="' + p + '-copy" aria-label="Kopier kostnaden ' + esc(g.desc) + '" title="Kopier">' + ico('i-copy', 'i24') + '</button>' : '') +
+            '<button type="button" class="c-iconbtn" data-act="delete-cost" ' + ref + ' data-fk="' + p + '-del" aria-label="Slett ' + what + ' ' + esc(g.desc) + '" title="Slett">' + ico('i-trash24', 'i24') + '</button></div></td>';
       }
       return '<td></td>';
     }).join('') + '</tr>';
   }
-  /* which fields of a waiting line differ from the cost it still sits under */
-  function changedFields(l) {
-    var h = attrsOfKey(homeOf(l)), out = {};
-    ['account', 'vat', 'project', 'dept', 'loc'].forEach(function (f) { out[f] = (l[f] || null) !== (h[f] || null); });
-    out.period = periodKey(l.period) !== periodKey(h.period);
-    return out;
+  function cLineRow(l, cols, g, last, flat) {
+    var p = 'l' + l.id, sel = S.sel.has(l.id), ref = 'data-scope="line" data-ref="' + l.id + '"';
+    var cls = 'c-cl' + (last ? ' is-last' : '') + (sel ? ' is-selected' : '') + (S.flashLine === l.id ? ' is-new' : '');
+    return '<tr class="' + cls + '" data-id="' + l.id + '">' + cols.map(function (c) { return cLineCell(c, l, p, sel, ref, flat); }).join('') + '</tr>';
   }
-  function markTd(html) {
-    return html.replace(/^<td( class=")?/, function (m, c) { return c ? '<td title="Endret. Flyttes når du omgrupperer." class="is-changed ' : '<td title="Endret. Flyttes når du omgrupperer." class="is-changed"'; });
+  function cLineCell(c, l, p, sel, ref, flat) {
+    var rb = !!(l.project && l.rebill);
+    switch (c.id) {
+      case 'sel': return cellView(c, l, sel).replace('<td class="c-td-sel">', '<td class="c-td-sel c-stk0">');
+      case 'desc':
+        return '<td class="' + stk('desc').trim() + '"><div class="' + (flat ? 'c-flat' : 'c-tree') + '"><label class="c-cf"><input type="text" data-fk="' + p + '-desc" ' + ref + ' data-field="desc" value="' + esc(l.desc) + '" placeholder="Beskrivelse" aria-label="Beskrivelse" autocomplete="off"></label></div></td>';
+      case 'account': return '<td>' + cellSel(p, 'account', ref, accLabel(l.account), 'Velg konto', 'Regnskapskonto') + '</td>';
+      case 'vat': return '<td>' + cellSel(p, 'vat', ref, vatShort(l.vat), 'Velg', 'Mva-kode', vatLong(l.vat)) + '</td>';
+      case 'dept': case 'dim': case 'project': case 'sub': case 'budget': return '<td>' + cellSel(p, c.id, ref, dimLabel(c.id, l[c.id]), '–', DIMS[c.id].label) + '</td>';
+      case 'markup':
+        if (!l.project) return C_DASH;
+        return '<td><div class="c-rebill"><input type="checkbox" class="c-check" data-act="rebill" data-id="' + l.id + '" data-fk="' + p + '-rebill"' + (l.rebill ? ' checked' : '') + ' aria-label="Viderefakturer ' + esc(l.desc || 'ordrelinjen') + '">' +
+          pctCell(p + '-markup', ref, 'markup', l.markup || '', !l.rebill, 'Påslag i prosent') + '</div></td>';
+      case 'discount':
+        if (!l.project) return '<td></td>';
+        return '<td>' + pctCell(p + '-discount', ref, 'discount', l.discount || '', !l.rebill, 'Rabatt i prosent') + '</td>';
+      case 'pacct': case 'pmon': case 'pyear': case 'pcount':
+        /* the cost row above carries the periodisering; in other groupings each line shows its cost's */
+        if (cMode() === 'kontering' || !l.period) return '<td></td>';
+        return '<td><span class="c-cf is-static" title="' + esc(PER_HINT) + '"><span class="c-cf__val">' + esc(perText(l.period, c.id)) + '</span></span></td>';
+      case 'rprice': return '<td>' + (rb ? calcCell('data-calc="rprice" data-id="' + l.id + '"', fmtPrice(resalePrice(l))) : '') + '</td>';
+      case 'ramount': return '<td>' + (rb ? calcCell('data-calc="ramount" data-id="' + l.id + '"', fmt(resaleAmount(l))) : '') + '</td>';
+      case 'cact': return cellView({ id: 'act' }, l, sel);
+    }
+    return cellView(c, l, sel);
   }
-  function cLineRow(l, cols, g, last, groups) {
-    var p = 'l' + l.id, sel = S.sel.has(l.id), pend = isPending(l), ref = 'data-scope="line" data-ref="' + l.id + '"';
-    var cls = 'c-cl' + (last ? ' is-last' : '') + (sel ? ' is-selected' : '') + (pend ? ' is-pending' : '');
-    var ch = pend ? changedFields(l) : null;
-    /* a change in a hidden column still gets its dot, next to the description */
-    var shown = !!ch && cols.some(function (c) { return ch[c.id]; });
-    return '<tr class="' + cls + '" data-id="' + l.id + '">' + cols.map(function (c) {
-      var td = cLineCell(c, l, p, sel, pend && !shown, ref, g, groups);
-      return ch && ch[c.id] ? markTd(td) : td;
-    }).join('') + '</tr>';
-  }
-  function cLineCell(c, l, p, sel, dotDesc, ref, g, groups) {
-      switch (c.id) {
-        case 'desc':
-          var dot = dotDesc ? '<span class="c-dot" title="Endret. Flyttes når du omgrupperer."></span>' : '';
-          return '<td class="c-td-tree' + stk('desc') + '"><div class="c-tree"><label class="c-cf"><input type="text" data-fk="' + p + '-desc" ' + ref + ' data-field="desc" value="' + esc(l.desc) + '" placeholder="Beskrivelse" aria-label="Beskrivelse" autocomplete="off"></label>' + dot + '</div></td>';
-        case 'rebill':
-          if (!g.project || toProjOf(g) !== 'lines') return '<td></td>';
-          return '<td><div class="c-rebill"><input type="checkbox" class="c-check" data-act="rebill" data-id="' + l.id + '" data-fk="' + p + '-rebill"' + (l.rebill ? ' checked' : '') + ' aria-label="Viderefakturer ' + esc(l.desc || 'ordrelinjen') + '"></div></td>';
-        case 'gross': return '<td></td>';
-        case 'vat': return '<td>' + cellSel(p, 'vat', ref, vatRate(l.vat), 'Velg', 'Mva-kode', vatLong(l.vat)) + '</td>';
-        case 'cact': return cellView({ id: 'act' }, l, sel);
-        case 'sel': return cellView(c, l, sel).replace('<td class="c-td-sel">', '<td class="c-td-sel c-stk0">');
-      }
-      return cellView(c, l, sel);
-  }
-  /* a cost shows its lines when the user opened it, and always while a search or filter is on */
-  function cIsOpen(k) { return S.showLines && (S.cOpen.has(k) || !!(S.search.trim() || S.fkeys.size)); }
+  /* a group shows its lines when the user opened it, and always while a search or filter is on */
+  function cIsOpen(k) { return S.cOpen.has(k) || !!(S.search.trim() || S.fkeys.size); }
   function cBodyRows(cols, groups) {
-    cols = cols || cCols(); groups = groups || cGroups();
-    var vis = S.showLines ? new Set(visibleLines().map(function (l) { return l.id; })) : null;
-    var filtering = S.showLines && (S.search.trim() || S.fkeys.size);
+    cols = cols || cCols();
+    var vis = visibleLines();
+    if (cMode() === 'ingen') return vis.map(function (l, i) { return cLineRow(l, cols, null, i === vis.length - 1, true); }).join('');
+    groups = groups || cGroups();
+    var visIds = new Set(vis.map(function (l) { return l.id; })), filtering = !!(S.search.trim() || S.fkeys.size);
     return groups.map(function (g) {
-      var lines = S.showLines ? g.lines.filter(function (l) { return vis.has(l.id); }) : [];
+      var lines = g.lines.filter(function (l) { return visIds.has(l.id); });
       if (filtering && !lines.length) return '';
       var out = cGroupRow(g, cols);
-      if (cIsOpen(g.key)) out += lines.map(function (l, i) { return cLineRow(l, cols, g, i === lines.length - 1, groups); }).join('');
+      if (cIsOpen(g.key)) out += lines.map(function (l, i) { return cLineRow(l, cols, g, i === lines.length - 1, false); }).join('');
       return out;
     }).join('');
   }
   function cProjNote() {
     var by = {}, order = [];
-    cGroups().forEach(function (g) {
-      if (!g.project) return;
-      if (!by[g.project]) { by[g.project] = 0; order.push(g.project); }
-      by[g.project] += g.lines.length;
+    S.lines.forEach(function (l) {
+      if (!l.project) return;
+      if (!by[l.project]) { by[l.project] = 0; order.push(l.project); }
+      by[l.project]++;
     });
     return order.map(function (pid) { return ' ' + projShareText({ id: pid, lines: by[pid] }, true) + '.'; }).join('');
   }
   function cView() {
     var cols = cCols(), groups = cGroups(), out = [];
-    var minW = cols.reduce(function (s, c) { return s + (c.w || c.min || 0); }, 0);
-    var minN = cols.reduce(function (s, c) { return s + (c.narrow || c.w || c.min || 0); }, 0);
-    if (S.showLines) out.push('<div id="linesBar">' + barView() + '</div>');
-    /* the table scrolls sideways; .c-hbar is a copy of its scrollbar that stays in view above «Bokfør» */
-    out.push('<div class="c-tscroll"><div class="c-tablewrap" id="tablewrap"><table class="c-table c-ctable is-compact' + (S.showLines ? ' is-open' : '') + '" style="--minw:' + minW + 'px;--minw-n:' + minN + 'px" aria-label="' + (S.showLines ? 'Kostnader med ordrelinjer' : 'Kostnader') + '">' +
-      '<colgroup>' + cols.map(function (c) { return c.w ? '<col' + (c.narrow ? ' class="c-col-narrow"' : '') + ' style="width:' + c.w + 'px' + (c.narrow ? ';--w-n:' + c.narrow + 'px' : '') + '">' : '<col>'; }).join('') + '</colgroup>' +
-      '<thead><tr>' + cols.map(cTh).join('') + '</tr></thead><tbody id="tbody">' + cBodyRows(cols, groups) + '</tbody></table></div>' +
-      '<div class="c-hbar" id="hbar" aria-hidden="true"><div></div></div></div>');
-    if (S.showLines) out.push('<div id="linesEmpty">' + emptyView() + '</div>');
-    else if (!groups.length) out.push('<div class="c-empty c-pad"><strong>Ingen kostnader</strong><span>Legg til en kostnad for å kunne bokføre fakturaen.</span></div>');
-    out.push(footView(S.showLines ? 'line' : 'cost'));
+    var minW = cols.reduce(function (s, c) { return s + (c.w || 0); }, 0), dw = S.cDescW || C_DESC_W;
+    out.push('<div id="linesBar">' + barView() + '</div>');
+    /* the table scrolls sideways; .c-hbar is a copy of its scrollbar that stays in view above «Bokfør»,
+       .c-tshadow marks the right edge while more columns are hidden there */
+    out.push('<div class="c-tscroll"><div class="c-tablewrap" id="tablewrap"><table class="c-table c-ctable is-compact is-open' + (cMode() === 'ingen' ? ' is-flat' : '') + '" id="ctable" data-base="' + (minW - dw) + '" style="--minw:' + minW + 'px" aria-label="Kostnader med ordrelinjer">' +
+      '<colgroup>' + cols.map(function (c) { return '<col' + (c.id === 'desc' ? ' class="c-col-desc"' : '') + ' style="width:' + c.w + 'px">'; }).join('') + '</colgroup>' +
+      cHead(cols) + '<tbody id="tbody">' + cBodyRows(cols, groups) + '</tbody>' +
+      '<tfoot><tr class="c-tfoot"><td class="c-stk0" colspan="2"><button type="button" class="c-btn c-btn--secondary" data-act="add-line" data-fk="add-line">Ny ordrelinje' + ico('i-add') + '</button></td><td colspan="' + (cols.length - 2) + '"></td></tr></tfoot></table></div>' +
+      '<div class="c-sshadow" aria-hidden="true"></div><div class="c-tshadow" aria-hidden="true"></div><div class="c-hbar" id="hbar" aria-hidden="true"><div></div></div></div>');
+    out.push('<div id="linesEmpty">' + emptyView() + '</div>');
+    out.push('<div class="c-foot c-foot--sum c-pad"><div class="c-totals num" data-totals>' + totalsInner(totals()) + '</div></div>');
     out.push(alertView());
-    out.push(projSectionView());
     return out.join('');
   }
   /* Width of a classic scrollbar. 0 means overlay scrollbars (a Mac trackpad): those need no copy. */
@@ -1309,18 +1494,57 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var on = SBW > 0 && tw.scrollWidth > tw.clientWidth + 1;
     hb.firstChild.style.width = tw.scrollWidth + 'px';
     hb.parentNode.classList.toggle('has-hbar', on);
+    hb.parentNode.style.setProperty('--sbw', (on ? SBW : 0) + 'px');
     if (on && Math.abs(hb.scrollLeft - tw.scrollLeft) > 1) hb.scrollLeft = tw.scrollLeft;
+    syncEdges();
   }
+  /* shadows: on the pinned description while rows scroll under it, and on the right edge while columns are hidden there */
+  function syncEdges() {
+    var tw = $('#tablewrap'); if (!tw) return;
+    var ts = tw.parentNode; if (!ts || !ts.classList.contains('c-tscroll')) return;
+    var on = tw.scrollLeft > 0, th = on && $('th.c-th-desc', tw);
+    if (th) ts.style.setProperty('--stkw', (th.getBoundingClientRect().right - ts.getBoundingClientRect().left).toFixed(2) + 'px');
+    ts.classList.toggle('is-scrolled', on);
+    ts.classList.toggle('has-more', tw.scrollLeft + tw.clientWidth < tw.scrollWidth - 1);
+  }
+  /* width of the description column: drag the edge of its header, or use the arrow keys on it */
+  function setDescW(w) {
+    w = Math.max(C_DESC_MIN, Math.min(C_DESC_MAX, Math.round(w)));
+    S.cDescW = w;
+    var t = $('#ctable'); if (!t) return w;
+    var col = $('col.c-col-desc', t); if (col) col.style.width = w + 'px';
+    t.style.setProperty('--minw', (+t.dataset.base + w) + 'px');
+    var h = $('.c-colrs', t); if (h) h.setAttribute('aria-valuenow', String(w));
+    syncHbar();
+    return w;
+  }
+  var RS = null;
+  document.addEventListener('pointerdown', function (e) {
+    var h = e.target.closest && e.target.closest('.c-colrs'); if (!h || e.button !== 0) return;
+    e.preventDefault();
+    RS = { x: e.clientX, w: S.cDescW || C_DESC_W, h: h };
+    h.classList.add('is-drag'); document.body.classList.add('is-resizing');
+    try { h.setPointerCapture(e.pointerId); } catch (er) { /* not needed for mouse */ }
+  });
+  document.addEventListener('pointermove', function (e) { if (RS) setDescW(RS.w + e.clientX - RS.x); });
+  function endResize() {
+    if (!RS) return;
+    RS.h.classList.remove('is-drag'); document.body.classList.remove('is-resizing');
+    RS = null; markSaved();
+  }
+  document.addEventListener('pointerup', endResize);
+  document.addEventListener('pointercancel', endResize);
+  document.addEventListener('dblclick', function (e) { if (e.target.closest && e.target.closest('.c-colrs')) { setDescW(C_DESC_W); markSaved(); } });
   function syncGroupSel() {
     if (DESIGN !== 'C' || !S.showLines) return;
     var vis = visibleLines();
     $$('[data-act="selgroup"]').forEach(function (cb) {
-      var ls = vis.filter(function (l) { return homeOf(l) === cb.dataset.ref; }), n = ls.filter(function (l) { return S.sel.has(l.id); }).length;
+      var ls = vis.filter(function (l) { return viewKeyOf(l) === cb.dataset.ref; }), n = ls.filter(function (l) { return S.sel.has(l.id); }).length;
       cb.checked = n > 0 && n === ls.length; cb.indeterminate = n > 0 && n < ls.length; cb.disabled = !ls.length;
     });
   }
   function selectGroup(key, on) {
-    visibleLines().forEach(function (l) { if (homeOf(l) === key) { if (on) S.sel.add(l.id); else S.sel.delete(l.id); } });
+    visibleLines().forEach(function (l) { if (viewKeyOf(l) === key) { if (on) S.sel.add(l.id); else S.sel.delete(l.id); } });
     renderBar(); renderRows();
     var cb = $('[data-act="selgroup"][data-ref="' + (window.CSS && CSS.escape ? CSS.escape(key) : key) + '"]'); if (cb) cb.focus();
   }
@@ -1394,47 +1618,126 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     toast(regroupMsg(r), { action: 'Angre', onAction: undo });
     markSaved();
   }
-  function regroupCore() {
+  function regroupCore(opts) {
+    opts = opts || {};
     var moved = pendingLines(); if (!moved.length) return null;
-    pushUndo();
-    var groups = cGroups(), byKey = {}, created = [], into = [];
+    if (opts.undo !== false) pushUndo();
+    var groups = cGroupsBy('kontering'), byKey = {}, created = [], into = [];
     var stay = new Set(S.lines.filter(function (l) { return !isPending(l); }).map(function (l) { return l.id; }));
     var taken = new Set(groups.map(function (g) { return g.desc; }));
     groups.forEach(function (g) { byKey[g.key] = g; });
+    /* where the lines of each cost go: a cost whose lines all go to one new coding is the same cost with new coding */
+    var dest = {};
+    moved.forEach(function (l) { (dest[l.home] = dest[l.home] || new Set()).add(keyOf(l)); });
+    function whole(from, nk) { return from && dest[from.key] && dest[from.key].size === 1 && dest[from.key].has(nk) && from.lines.every(function (x) { return isPending(x); }); }
     moved.forEach(function (l) {
       var nk = keyOf(l), from = byKey[l.home];
       if (byKey[nk]) { if (into.indexOf(nk) === -1) into.push(nk); }
       else if (created.indexOf(nk) === -1) {
         created.push(nk);
+        if (whole(from, nk)) { taken.delete(from.desc); S.desc[nk] = from.desc; }
         /* a name left over from an earlier cost with this coding is reused, unless another cost has it now */
-        if (S.desc[nk] == null || taken.has(S.desc[nk])) { var lbl = diffLabel(attrsOfKey(l.home), attrsOfKey(nk), true); S.desc[nk] = (from ? from.desc : INV.desc) + (lbl ? ' – ' + lbl : ''); }
+        else if (S.desc[nk] == null || taken.has(S.desc[nk])) { var lbl = diffLabel(attrsOfKey(l.home), attrsOfKey(nk), true); S.desc[nk] = (from ? from.desc : INV.desc) + (lbl ? ' – ' + lbl : ''); }
         taken.add(S.desc[nk]);
       }
       l.home = nk;
     });
     /* a cost re-invoiced as a whole: lines that join it take the choice of the lines already in it */
-    cGroups().forEach(function (g) {
+    cGroupsBy('kontering').forEach(function (g) {
       var base = g.lines.filter(function (l) { return stay.has(l.id); })[0] || g.lines[0]; if (!base) return;
       g.lines.forEach(function (l) {
         if (!g.project) { l.rebill = false; return; }
         if (!S.projLines) { l.rebill = base.rebill; l.markup = base.markup; }
       });
     });
-    S.sel.clear();
-    created.concat(into).forEach(function (k) { S.cOpen.add(k); });   /* open where the lines went, so they can be seen */
+    if (!opts.keepSel) S.sel.clear();
+    if (cMode() === 'kontering') created.concat(into).forEach(function (k) { S.cOpen.add(k); });   /* open where the lines went, so they can be seen */
     return { moved: moved.length, created: created, into: into };
   }
+  /* variant C: a line whose coding changed belongs to another cost straight away; new costs get a name */
+  function cSettle() { return regroupCore({ undo: false, keepSel: true }); }
+  function cSetLine(l, field, val) {
+    pushUndo();
+    var vb = viewKeyOf(l), before = new Set(cGroups().map(function (g) { return g.key; }));
+    setLineField(l, field, val);
+    if (field === 'project' && !val) l.rebill = false;
+    if (DIMS[field] && val) S.cols[field] = true;
+    cSettle();
+    var va = viewKeyOf(l), moved = va !== vb && cMode() !== 'ingen';
+    if (moved) { S.cOpen.add(va); S.flashLine = l.id; }
+    if (S.fkeys.size && S.fkeys.has(vb) && !S.fkeys.has(va)) S.fkeys.add(va);
+    render({ focus: 'l' + l.id + '-' + field, scroll: true });
+    if (moved) {
+      var g = cGroup(va), what = cMode() === 'kontering' ? 'kostnad' : 'gruppe';
+      toast('«' + (l.desc || 'Ordrelinjen') + '» er flyttet til ' + (before.has(va) ? '' : 'en ny ' + what + ', ') + '«' + (g ? g.desc : '') + '».', { action: 'Angre', onAction: undo });
+    }
+    markSaved();
+  }
+  /* a field of the periodisering on a cost row. A cost without one is periodised with the usual choice
+     (12 months from the invoice month, on 1749), and «Ingen periodisering» takes it away */
+  function cSetPerField(ref, f, value) {
+    var g = cGroup(ref); if (!g) return;
+    var cur = g.period, per = null;
+    if (!(f === 'pacct' && !value)) {
+      per = cur ? { from: cur.from, months: cur.months, acct: cur.acct } : { from: C_PER_DEFAULT.from, months: C_PER_DEFAULT.months, acct: C_PER_DEFAULT.acct };
+      if (f === 'pacct') per.acct = value;
+      else if (f === 'pmon') per.from = per.from.slice(0, 5) + value;
+      else if (f === 'pyear') per.from = value + per.from.slice(4);
+      else per.months = +value;
+    }
+    if (periodKey(per) === periodKey(cur)) { focusFk('cg' + g.idx + '-' + f); return; }
+    applyPeriod({ scope: 'cgroup', ref: ref, field: f }, per);
+  }
+  function cSetGrouping(mode) {
+    if (mode === cMode()) { focusFk('cgroupby'); return; }
+    S.cGroup = mode; S.cOpen = new Set();   /* a new grouping always starts collapsed, so the groups can be read first */
+    S.fkeys.clear(); S.sel.clear();
+    render({ focus: 'cgroupby' });
+  }
+  function cToggleAll() {
+    var gs = cGroups(), all = gs.length > 0 && gs.every(function (g) { return S.cOpen.has(g.key); });
+    if (all) S.cOpen.clear(); else gs.forEach(function (g) { S.cOpen.add(g.key); });
+    render({ focus: 'c-all' });
+  }
+  /* re-invoicing: price and amount the customer gets, from the markup and the discount */
+  function rbPct(v) { var n = parseNum(v); return n == null ? 0 : n; }
+  function resalePrice(l) { return l.price * (1 + rbPct(l.markup) / 100); }
+  function resaleAmount(l) { return Math.round(l.net * (1 + rbPct(l.markup) / 100) * (1 - rbPct(l.discount) / 100)); }
+  function gResale(g) { var on = g.lines.filter(function (l) { return l.project && l.rebill; }); return on.length ? on.reduce(function (s, l) { return s + resaleAmount(l); }, 0) : null; }
+  function gPct(g, f) { var l = g.lines.filter(function (x) { return x.rebill; })[0] || g.lines[0]; return l ? (l[f] || '') : ''; }
+  /* the computed cells (sums, re-invoicing) follow edits without drawing the table again, so focus stays put */
+  function patchCalc() {
+    if (DESIGN !== 'C') return;
+    var gs = null;
+    $$('#costBody [data-calc]').forEach(function (el) {
+      var k = el.dataset.calc;
+      if (k === 'rprice' || k === 'ramount') {
+        var l = lineById(+el.dataset.id); if (!l) return;
+        el.textContent = l.project && l.rebill ? (k === 'rprice' ? fmtPrice(resalePrice(l)) : fmt(resaleAmount(l))) : '';
+        return;
+      }
+      if (!gs) { gs = {}; cGroups().forEach(function (g) { gs[g.key] = g; }); }
+      var g = gs[el.dataset.key]; if (!g) return;
+      if (k === 'gnet') el.textContent = fmt(g.net);
+      else { var ra = gResale(g); el.textContent = ra == null ? '' : fmt(ra); }
+    });
+  }
   function cPostProblems() {
-    var out = [], t = totals(), groups = cGroups(), pend = pendingLines().length;
-    if (pend) out.push({ text: (pend === 1 ? '1 ordrelinje er endret og ikke omgruppert.' : pend + ' ordrelinjer er endret og ikke omgruppert.') + ' Trykk «Omgrupper linjer» først.', fk: 'regroup' });
-    if (!groups.length) out.push({ text: 'Legg til minst én kostnad.', fk: 'add-cost' });
-    groups.forEach(function (g) {
+    cSettle();
+    var out = [], t = totals(), ks = cGroupsBy('kontering'), mode = cMode();
+    if (!ks.length) out.push({ text: 'Legg til minst én ordrelinje.', fk: 'add-line' });
+    ks.forEach(function (g) {
       var miss = [];
       if (!g.account) miss.push('kostnadskonto');
       if (!g.vat) miss.push('mva-kode');
-      if (miss.length) out.push({ text: '«' + g.desc + '» mangler ' + miss.join(' og ') + '.', fk: 'cg' + g.idx + '-' + (g.account ? 'vat' : 'account') });
+      if (!miss.length) return;
+      var f = g.account ? 'vat' : 'account', fk;
+      if (mode === 'kontering') fk = 'cg' + g.idx + '-' + f;
+      else if (mode === 'konto') { var vk = viewKeyOf(g.lines[0]), vi = cGroups().map(function (x) { return x.key; }).indexOf(vk); fk = 'cg' + vi + '-' + f; }
+      else fk = 'l' + g.lines[0].id + '-' + f;
+      out.push({ text: '«' + g.desc + '» mangler ' + miss.join(' og ') + '.', fk: fk });
     });
-    if (groups.length && t.diff) out.push({ text: 'Kostnadene er NOK ' + fmt(Math.abs(t.diff)) + ' ' + (t.diff > 0 ? 'høyere' : 'lavere') + ' enn fakturabeløpet på NOK ' + fmt(INV.gross) + '.', fk: '' });
+    if (ks.length && t.diff) out.push({ text: 'Kostnadene er NOK ' + fmt(Math.abs(t.diff)) + ' ' + (t.diff > 0 ? 'høyere' : 'lavere') + ' enn fakturabeløpet på NOK ' + fmt(INV.gross) + '.', fk: '' });
     return out;
   }
 
@@ -1676,7 +1979,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 
   /* ----- order lines ----- */
   function hay(l) {
-    return [l.desc, accLabel(l.account), vatLong(l.vat), dimLabel('project', l.project), dimLabel('dept', l.dept), dimLabel('loc', l.loc), fmt(l.net), fmtPrice(l.price), fmtQty(l.qty)].join(' ').replace(/ /g, ' ').toLowerCase();
+    return [l.desc, accLabel(l.account), vatLong(l.vat), dimLabel('project', l.project), dimLabel('dept', l.dept), dimLabel('loc', l.loc), dimLabel('dim', l.dim), dimLabel('sub', l.sub), dimLabel('budget', l.budget), fmt(l.net), fmtPrice(l.price), fmtQty(l.qty)].join(' ').replace(/ /g, ' ').toLowerCase();
   }
   function cmp(a, b, k) {
     switch (k) {
@@ -1686,14 +1989,14 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       case 'qty': return a.qty - b.qty;
       case 'price': return a.price - b.price;
       case 'net': return a.net - b.net;
-      case 'project': case 'dept': case 'loc': return dimLabel(k, a[k]).localeCompare(dimLabel(k, b[k]), 'nb');
+      case 'project': case 'dept': case 'loc': case 'dim': case 'sub': case 'budget': return dimLabel(k, a[k]).localeCompare(dimLabel(k, b[k]), 'nb');
       case 'period': return periodKey(a.period).localeCompare(periodKey(b.period));
     }
     return 0;
   }
   function visibleLines() {
     var q = S.search.trim().toLowerCase();
-    var kf = DESIGN === 'C' ? homeOf : keyOf;
+    var kf = DESIGN === 'C' ? viewKeyOf : keyOf;
     var arr = S.lines.filter(function (l) { return (!S.fkeys.size || S.fkeys.has(kf(l))) && (!q || hay(l).indexOf(q) !== -1); });
     if (S.sort.col) {
       var k = S.sort.col, d = S.sort.dir;
@@ -1726,8 +2029,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var sel = S.sel.has(l.id);
     return '<tr data-id="' + l.id + '"' + (sel ? ' class="is-selected"' : '') + '>' + cols.map(function (c) { return cellView(c, l, sel); }).join('') + '</tr>';
   }
-  function cellSel(p, field, ref, text, placeholder, label, title, err) {
-    return '<button type="button" class="c-cf c-cf--select' + (err ? ' is-error' : '') + '" data-fk="' + p + '-' + field + '" ' + ref + ' data-field="' + field + '" data-pop="' + field + '" aria-haspopup="listbox" aria-expanded="false" aria-label="' + esc(label) + ': ' + esc(text || 'ikke valgt') + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' +
+  function cellSel(p, field, ref, text, placeholder, label, title, err, kind) {
+    return '<button type="button" class="c-cf c-cf--select' + (err ? ' is-error' : '') + '" data-fk="' + p + '-' + field + '" ' + ref + ' data-field="' + field + '" data-pop="' + (kind || field) + '" aria-haspopup="listbox" aria-expanded="false" aria-label="' + esc(label) + ': ' + esc(text || 'ikke valgt') + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' +
       '<span class="c-cf__val' + (text ? '' : ' is-empty') + '">' + esc(text || placeholder) + '</span>' + ico('i-chev20') + '</button>';
   }
   function cellView(c, l, sel) {
@@ -1752,7 +2055,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     return '<td></td>';
   }
   function groupName(groups, k) {
-    if (DESIGN === 'C') { var cg = cGroup(k); return cg ? '«' + cg.desc + '»' : 'Kostnad uten ordrelinjer'; }
+    if (DESIGN === 'C') { var cg = cGroup(k); return cg ? '«' + cg.desc + '»' : 'Gruppe uten ordrelinjer'; }
     var i = -1;
     for (var j = 0; j < groups.length; j++) if (groups[j].key === k) { i = j; break; }
     if (i < 0) return 'Kostnad uten ordrelinjer';
@@ -1766,21 +2069,26 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       return '<span class="c-qchip">' + esc(label) + '<button type="button" data-act="unfilter" data-ref="' + esc(k) + '" aria-label="Fjern filteret ' + esc(label) + '">' + ico('i-close') + '</button></span>';
     }).join('');
   }
-  function regroupBtn() {
-    var n = DESIGN === 'C' ? pendingLines().length : 0;
-    return n ? '<button type="button" class="c-btn c-btn--primary c-rgbtn" data-act="regroup" data-fk="regroup">Omgrupper linjer (' + n + ')</button>' : '';
+  /* variant C, right end of the filter line: the table in a full-width window, and the field choices */
+  function cBarEnd() {
+    var x = !!S.cx;
+    return '<div class="c-tf__end"><button type="button" class="c-iconbtn c-iconbtn--sm" id="cxBtn" data-act="cx-toggle" data-fk="cx" aria-label="' + (x ? 'Lukk stort vindu' : 'Åpne tabellen i stort vindu') + '" title="' + (x ? 'Lukk stort vindu' : 'Åpne i stort vindu') + '">' + ico(x ? 'i-shrink' : 'i-expand', 'i20') + '</button>' +
+      '<button type="button" class="c-iconbtn c-iconbtn--sm" id="colsBtnC" data-fk="cols" aria-label="Velg kolonner" title="Velg kolonner" aria-haspopup="dialog" aria-expanded="false">' + ico('i-gear', 'i20') + '</button></div>';
+  }
+  function cGroupSel() {
+    var g = C_GROUPINGS.filter(function (x) { return x.id === cMode(); })[0] || C_GROUPINGS[0];
+    return '<button type="button" class="c-field c-field--lg c-tf__group" id="cGroupBy" data-fk="cgroupby" data-pop="cgroupby" data-scope="cview" data-ref="v" data-field="cgroupby" aria-haspopup="listbox" aria-expanded="false" aria-label="Gruppering: ' + esc(g.label) + '"><span class="c-field__val">' + esc(g.label) + '</span>' + ico('i-chev20') + '</button>';
   }
   function barView() {
     if (S.sel.size) {
       return '<div class="c-bulk" role="toolbar" aria-label="Handlinger for valgte ordrelinjer"><span class="c-bulk__count" id="bulkCount">' + S.sel.size + ' valgt</span><div class="c-bulk__actions">' +
         '<button type="button" class="c-btn c-btn--tertiary" data-act="bulk-edit" data-fk="bulk-edit">Endre</button>' +
         '<button type="button" class="c-btn c-btn--tertiary" data-act="bulk-period" data-fk="bulk-period">Periodiser</button>' +
-        '<button type="button" class="c-btn c-btn--tertiary" data-act="bulk-delete" data-fk="bulk-delete">Slett</button></div>' + regroupBtn() + '</div>';
+        '<button type="button" class="c-btn c-btn--tertiary" data-act="bulk-delete" data-fk="bulk-delete">Slett</button></div></div>';
     }
     return '<div class="c-tf"><button type="button" class="c-btn c-btn--secondary" id="filterBtn" data-act="filter" data-fk="filter" aria-haspopup="dialog" aria-expanded="false">Filter' + ico('i-filter') + '</button>' +
       '<label class="c-tf__search"><span class="c-sr">Søk i ordrelinjer</span><input id="lineSearch" type="text" data-fk="search" placeholder="Search" value="' + esc(S.search) + '" autocomplete="off">' + ico('i-search') + '</label>' +
-      '<div class="c-tf__quick" id="quick">' + chipsView() + '</div>' + regroupBtn() +
-      (DESIGN === 'C' ? '<button type="button" class="c-iconbtn c-iconbtn--sm c-tf__cols" id="colsBtnC" data-fk="cols" aria-label="Velg felt" title="Velg felt" aria-haspopup="dialog" aria-expanded="false">' + ico('i-gear', 'i20') + '</button>' : '') + '</div>';
+      (DESIGN === 'C' ? cGroupSel() : '') + '<div class="c-tf__quick" id="quick">' + chipsView() + '</div>' + (DESIGN === 'C' ? cBarEnd() : '') + '</div>';
   }
   function emptyView() {
     if (!S.lines.length) return '<div class="c-empty c-pad"><strong>Ingen ordrelinjer</strong><span>' + (DESIGN !== 'A' ? 'Legg til en ordrelinje for å få en kostnad.' : 'Legg til en ordrelinje, eller slå av «Vis ordrelinjer» for å føre kostnadene direkte.') + '</span></div>';
@@ -1837,7 +2145,8 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (scope === 'line') { var l = lineById(+ref); v = l ? l[field] : null; }
     else if (scope === 'group') { var g = getGroups().filter(function (x) { return x.key === ref; })[0]; v = g ? g[field] : null; }
     else if (scope === 'manual') { var c = S.manual.filter(function (x) { return String(x.id) === ref; })[0]; v = c ? c[field] : null; }
-    else if (scope === 'cgroup') { var cg = cGroup(ref); v = !cg ? null : cg[field]; }
+    else if (scope === 'cgroup') { var cg = cGroup(ref); v = !cg ? null : (PER_F[field] ? perVal(cg.period, field) : cg[field]); }
+    else if (scope === 'cview') v = cMode();
     else if (scope === 'pay') v = S.pay.type;
     else if (scope === 'modal') v = M ? M.values[field] : null;
     return v == null ? '' : v;
@@ -1852,9 +2161,11 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       $('#payType').focus(); markSaved(); return;
     }
     if (scope === 'modal') { if (!M) return; M.values[field] = value; M.err = ''; refreshModal(); var t = $('[data-fk="mf-' + field + '"]'); if (t) t.focus(); return; }
+    if (scope === 'cview') { cSetGrouping(value); return; }
     if (scope === 'line') {
       var l = lineById(+ref); if (!l) return;
       if ((l[field] || null) === val) { focusFk('l' + l.id + '-' + field); return; }
+      if (DESIGN === 'C') { cSetLine(l, field, val); return; }
       var before = keySet(), oldKey = keyOf(l);
       setLineField(l, field, val);
       if (DIMS[field] && val) S.cols[field] = true;
@@ -1862,6 +2173,24 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       if (S.fkeys.size && S.fkeys.has(oldKey) && !S.fkeys.has(newKey)) S.fkeys.add(newKey);
       render({ focus: 'l' + l.id + '-' + field });
       announceRegroup(before, oldKey, newKey, 1, field, false);
+      markSaved(); return;
+    }
+    if (scope === 'cgroup' && PER_F[field]) { cSetPerField(ref, field, value); return; }
+    if (scope === 'cgroup' && cMode() !== 'kontering') {
+      /* a group of another kind than the cost: the value goes on every line in it, and the lines find their costs */
+      var vg = cGroup(ref); if (!vg) return;
+      if (!vg.mixed[field] && (vg[field] || null) === val) { focusFk('cg' + vg.idx + '-' + field); return; }
+      pushUndo();
+      var vBefore = new Set(cGroups().map(function (x) { return x.key; })), wasOpen = S.cOpen.has(ref);
+      vg.lines.forEach(function (x) { setLineField(x, field, val); if (field === 'project' && !val) x.rebill = false; });
+      if (DIMS[field] && val) S.cols[field] = true;
+      cSettle();
+      var vk = viewKeyOf(vg.lines[0]);
+      if (wasOpen) S.cOpen.add(vk);
+      if (vk !== ref) S.flash = vk;
+      var vgs = cGroups(), vi = vgs.map(function (x) { return x.key; }).indexOf(vk);
+      render({ focus: 'cg' + vi + '-' + field });
+      if (vk !== ref && vBefore.has(vk)) toast('Gruppene er slått sammen til «' + vgs[vi].desc + '».', { action: 'Angre', onAction: undo });
       markSaved(); return;
     }
     if (scope === 'cgroup') {
@@ -1910,7 +2239,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (scope === 'line') {
       var l = lineById(+ref); if (!l) return false;
       if (field === 'desc') { l.desc = el.value; return false; }
-      if (field === 'markup') { v = parseNum(el.value); l.markup = v == null ? '' : pctTxt(v); el.value = l.markup; return true; }
+      if (field === 'markup' || field === 'discount') { v = parseNum(el.value); l[field] = v == null ? '' : pctTxt(v); el.value = l[field]; patchCalc(); markSaved(); return true; }
       if (field === 'qty') { v = parseNum(el.value); if (v == null || v < 0) { el.value = fmtQty(l.qty); return false; } l.qty = v; l.net = Math.round(v * l.price); }
       else if (field === 'price') { v = parsePrice(el.value); if (v == null) { el.value = fmtPrice(l.price); return false; } l.price = v; l.net = Math.round(l.qty * v); }
       else if (field === 'net') { v = parseOre(el.value); if (v == null) { el.value = fmt(l.net); return false; } l.net = v; l.price = l.qty ? Math.round(v / l.qty * 100) / 100 : v; }
@@ -1920,12 +2249,18 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
         var q = tr.querySelector('[data-field="qty"]'), pr = tr.querySelector('[data-field="price"]'), ne = tr.querySelector('[data-field="net"]');
         if (q) q.value = fmtQty(l.qty); if (pr) pr.value = fmtPrice(l.price); if (ne) ne.value = fmt(l.net);
       }
-      patchTotals(); markSaved(); return true;
+      patchTotals(); patchCalc(); markSaved(); return true;
     }
     if (scope === 'cgroup') {
       var cg = cGroup(ref); if (!cg) return false;
       if (field === 'desc') { S.desc[ref] = el.value; return false; }
-      if (field === 'markup') { v = parseNum(el.value); var mk = v == null ? '' : pctTxt(v); cg.lines.forEach(function (x) { x.markup = mk; }); el.value = mk; markSaved(); return true; }
+      if (field === 'markup' || field === 'discount') { v = parseNum(el.value); var mk = v == null ? '' : pctTxt(v); cg.lines.forEach(function (x) { x[field] = mk; }); el.value = mk; patchCalc(); markSaved(); return true; }
+      if (field === 'net' && cg.lines.length === 1) {
+        v = parseOre(el.value); var nl = cg.lines[0];
+        if (v == null) { el.value = fmt(cg.net); return false; }
+        nl.net = v; nl.price = nl.qty ? Math.round(v / nl.qty * 100) / 100 : v; el.value = fmt(v);
+        patchTotals(); patchCalc(); markSaved(); return true;
+      }
       if (field === 'gross' && cg.lines.length === 1) {
         v = parseOre(el.value); var cl = cg.lines[0];
         if (v == null) { el.value = fmt(cg.gross); return false; }
@@ -1993,8 +2328,9 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       var k = keyOf(l); S.flash = k;
       if (DESIGN === 'C') {
         S.desc[k] = 'Ny kostnad'; l.home = k;
-        var ni = cGroups().map(function (x) { return x.key; }).indexOf(k);
-        render({ focus: 'cg' + ni + '-account', scroll: true });
+        var nvk = viewKeyOf(l), ni = cGroups().map(function (x) { return x.key; }).indexOf(nvk);
+        if (cMode() === 'ingen') render({ focus: 'l' + l.id + '-account', scroll: true });
+        else { S.cOpen.add(nvk); render({ focus: cMode() === 'kontering' ? 'cg' + ni + '-account' : 'l' + l.id + '-account', scroll: true }); }
         toast('Ny kostnad lagt til. Velg kostnadskonto og mva-kode.');
         markSaved(); return;
       }
@@ -2013,7 +2349,12 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var k = keyOf(l);
     if (S.fkeys.size && !S.fkeys.has(k)) S.fkeys.add(k);
     S.search = '';
-    if (DESIGN === 'C') { var hg = cGroup(homeOf(l)); S.cOpen.add(homeOf(l)); render({ focus: 'l' + l.id + '-desc', scroll: true }); toast('Ny ordrelinje lagt til i «' + (hg ? hg.desc : INV.desc) + '».'); markSaved(); return; }
+    if (DESIGN === 'C') {
+      var vk = viewKeyOf(l), hg = cGroup(vk);
+      if (cMode() !== 'ingen') S.cOpen.add(vk);
+      render({ focus: 'l' + l.id + '-desc', scroll: true });
+      toast(cMode() === 'ingen' ? 'Ny ordrelinje lagt til.' : 'Ny ordrelinje lagt til i «' + (hg ? hg.desc : INV.desc) + '».'); markSaved(); return;
+    }
     render({ focus: 'l' + l.id + '-desc', scroll: true });
     toast('Ny ordrelinje lagt til i kostnad ' + (groupIndex(k) + 1) + '. Den blir egen kostnad hvis du gir den en annen konto eller mva-kode.');
     markSaved();
@@ -2101,23 +2442,27 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
 
   /* ---------- batch edit / periodisering ---------- */
   function applyEdit(ids, v) {
-    var fields = ['account', 'vat', 'project', 'dept', 'loc'].filter(function (f) { return v[f] !== KEEP; });
+    var fields = ['account', 'vat', 'project', 'dept', 'loc', 'dim', 'sub', 'budget'].filter(function (f) { return f in v && v[f] !== KEEP; });
     if (!fields.length) { toast('Ingen felt er endret.'); return; }
     pushUndo();
     var set = new Set(ids);
     S.lines.forEach(function (l) { if (set.has(l.id)) fields.forEach(function (f) { setLineField(l, f, v[f] || null); }); });
     fields.forEach(function (f) { if (DIMS[f] && v[f]) S.cols[f] = true; });
     S.fkeys.clear();
+    var moved = DESIGN === 'C' ? cSettle() : null;
     render({ focus: 'bulk-edit' });
     var n = getGroups().length;
-    if (DESIGN === 'C') toast(nLines(ids.length) + ' er endret.' + (pendingLines().length ? ' Trykk «Omgrupper linjer» for å flytte dem til riktig kostnad.' : ''), { action: 'Angre', onAction: undo });
+    if (DESIGN === 'C') toast(nLines(ids.length) + ' er endret' + (moved ? ' og flyttet til riktig ' + (cMode() === 'kontering' ? 'kostnad' : 'gruppe') : '') + '.', { action: 'Angre', onAction: undo });
     else toast(ids.length + ' ' + (ids.length === 1 ? 'ordrelinje' : 'ordrelinjer') + ' er endret. Kostnadene er gruppert på nytt, nå ' + n + ' ' + (n === 1 ? 'kostnad' : 'kostnader') + '.', { action: 'Angre', onAction: undo });
     markSaved();
   }
   function applyPeriod(target, period) {
     pushUndo();
-    var before = getGroups().length;
-    if (target.scope === 'cgroup') {
+    var before = getGroups().length, C = DESIGN === 'C', focus = target.scope === 'lines' ? 'bulk-period' : null, cMsg = '';
+    if (target.scope === 'cgroup' && cMode() !== 'kontering') {
+      var vpg = cGroup(target.ref);
+      if (vpg) { vpg.lines.forEach(function (l) { l.period = period ? { from: period.from, months: period.months, acct: period.acct } : null; }); cSettle(); if (S.cOpen.has(target.ref)) S.cOpen.add(viewKeyOf(vpg.lines[0])); }
+    } else if (target.scope === 'cgroup') {
       var pg = cGroup(target.ref);
       if (pg) {
         var pa = attrsOfKey(target.ref); pa.period = period;
@@ -2126,6 +2471,11 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
         pg.lines.forEach(function (l) { l.period = period ? { from: period.from, months: period.months, acct: period.acct } : null; l.home = pk; });
         if (pkNew) { if (S.desc[target.ref] != null) S.desc[pk] = S.desc[target.ref]; else delete S.desc[pk]; }
         if (S.cOpen.has(target.ref)) S.cOpen.add(pk);
+        if (C) {
+          var pgs = cGroups(), pix = pgs.map(function (x) { return x.key; }).indexOf(pk);
+          focus = pix < 0 ? null : 'cg' + pix + '-' + (target.field || 'per');
+          if (!pkNew && pk !== target.ref && pix >= 0) cMsg = ' Kostnaden er slått sammen med «' + pgs[pix].desc + '», som har samme kontering og periodisering.';
+        }
       }
     } else if (target.scope === 'manual') {
       var c = S.manual.filter(function (x) { return String(x.id) === target.ref; })[0];
@@ -2136,33 +2486,45 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
         : S.lines.filter(function (l) { return target.ids.indexOf(l.id) !== -1; });
       lines.forEach(function (l) { l.period = period ? { from: period.from, months: period.months, acct: period.acct } : null; });
       if (target.scope === 'group' && lines.length) { var nk = keyOf(lines[0]); if (S.desc[nk] == null && S.desc[target.ref] != null) S.desc[nk] = S.desc[target.ref]; }
-      if (period && target.scope === 'lines') S.cols.period = true;
+      if (period && target.scope === 'lines' && !C) S.cols.period = true;
+      if (C) {
+        cSettle();
+        var lg = lines.length ? cGroup(viewKeyOf(lines[0])) : null;
+        if (lg && cMode() !== 'ingen') cMsg = ' ' + (lines.length === 1 ? '«' + (lines[0].desc || 'Ordrelinjen') + '» er' : nLines(lines.length) + ' er') + ' flyttet til «' + lg.desc + '».';
+        if (target.from && lg) { S.cOpen.add(lg.key); focus = 'cg' + lg.idx + '-per'; }   /* from the cost's own dialog: on to the new cost */
+      }
     }
+    /* variant C: show what was set */
+    if (C && period && !C_PERIOD.some(function (c) { return S.cols[c.id]; })) C_PERIOD.forEach(function (c) { S.cols[c.id] = true; });
     S.fkeys.clear();
-    render({ focus: target.scope === 'lines' ? 'bulk-period' : null });
+    render({ focus: focus });
     var after = getGroups().length;
     var msg = period ? 'Periodisert over ' + period.months + ' ' + (period.months === 1 ? 'måned' : 'måneder') + ' fra ' + monthLabel(period.from) + '.' : 'Periodiseringen er fjernet.';
-    if (DESIGN === 'C') { if (target.scope === 'lines' && pendingLines().length) msg += ' Trykk «Omgrupper linjer» for å flytte ordrelinjene til riktig kostnad.'; }
+    if (C) msg += cMsg;
     else if (S.include && after > before) msg += ' Ordrelinjene er skilt ut som egen kostnad.';
-    if (DESIGN !== 'C' && S.include && after < before) msg += ' Kostnadene er slått sammen igjen.';
+    if (!C && S.include && after < before) msg += ' Kostnadene er slått sammen igjen.';
     toast(msg, { action: 'Angre', onAction: undo });
     markSaved();
   }
 
   /* ---------- popovers ---------- */
   var pop = $('#pop'), P = null;
-  var KIND_LABEL = { account: 'Kontoer', vat: 'Mva-koder', project: 'Prosjekter', dept: 'Avdelinger', loc: 'Lokasjoner', paytype: 'Betalingstyper', pmonth: 'Måneder', pcount: 'Antall måneder', pacct: 'Kontoer for periodisering', fpart: 'Deler' };
+  var KIND_LABEL = { account: 'Kontoer', vat: 'Mva-koder', project: 'Prosjekter', dept: 'Avdelinger', loc: 'Lokasjoner', paytype: 'Betalingstyper', pmonth: 'Måneder', pcount: 'Antall måneder', pacct: 'Kontoer for periodisering', cpacct: 'Kontoer for periodisering', pmon: 'Måneder', pyear: 'År', fpart: 'Deler', dim: 'Dimensjoner', sub: 'Underleveranser', budget: 'Budsjettposter', cgroupby: 'Grupperinger' };
   function optionsFor(kind) {
     switch (kind) {
       case 'account': return ACCOUNTS.map(function (a) { return { value: a.no, label: a.no + ' ' + a.name, num: a.no, text: a.name, desc: a.desc }; });
       case 'vat': return VAT_ORDER.map(function (c) { return { value: c, label: vatLong(c), num: c + ':', text: '(' + pctTxt(VAT[c].rate) + '%) ' + VAT[c].name }; });
-      case 'project': case 'dept': case 'loc':
-        return [{ value: '', label: DIMS[kind].none, text: DIMS[kind].none, muted: true }].concat(DIMS[kind].list.map(function (x) { return { value: x.id, label: dimLabel(kind, x.id), num: kind === 'loc' ? '' : x.id, text: x.name }; }));
+      case 'project': case 'dept': case 'loc': case 'dim': case 'sub': case 'budget':
+        return [{ value: '', label: DIMS[kind].none, text: DIMS[kind].none, muted: true }].concat(DIMS[kind].list.map(function (x) { return { value: x.id, label: dimLabel(kind, x.id), num: NAME_ONLY[kind] ? '' : x.id, text: x.name }; }));
+      case 'cgroupby': return C_GROUPINGS.map(function (g) { return { value: g.id, label: g.label, text: g.label, desc: g.desc }; });
       case 'fpart': var fn = M ? M.values.n : 2, fo = []; for (var fi = 0; fi < fn; fi++) fo.push({ value: String(fi), label: 'Del ' + (fi + 1), text: 'Del ' + (fi + 1) }); return fo;
       case 'paytype': return PAYTYPES.map(function (x) { return { value: x.id, label: x.id + ' ' + x.name, num: x.id, text: x.name }; });
       case 'pmonth': return MONTH_OPTS.map(function (m) { return { value: m.value, label: m.label, text: m.label }; });
       case 'pcount': return [1, 2, 3, 4, 6, 12, 18, 24].map(function (n) { return { value: String(n), label: n + ' ' + (n === 1 ? 'måned' : 'måneder'), text: n + ' ' + (n === 1 ? 'måned' : 'måneder') }; });
       case 'pacct': return PERIOD_ACCTS.map(function (x) { return { value: x.id, label: x.id + ' ' + x.name, num: x.id, text: x.name }; });
+      case 'cpacct': return [{ value: '', label: 'Ingen periodisering', text: 'Ingen periodisering', muted: true }].concat(optionsFor('pacct'));
+      case 'pmon': return MONTHS.map(function (m, i) { var v = (i < 9 ? '0' : '') + (i + 1); return { value: v, label: capFirst(m), text: capFirst(m) }; });
+      case 'pyear': return ['2025', '2026', '2027'].map(function (y) { return { value: y, label: y, text: y }; });
     }
     return [];
   }
@@ -2171,7 +2533,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var o = optionsFor(kind).filter(function (x) { return x.value === (v == null ? '' : v); })[0];
     return o ? o.label : '';
   }
-  function placePop(trigger, minW, alignRight) {
+  function placePop(trigger, minW, alignRight, maxH) {
     var r = trigger.getBoundingClientRect(), de = document.documentElement, vw = de.clientWidth, vh = de.clientHeight;
     var w = Math.min(Math.max(r.width, minW || 0), vw - 16);
     pop.style.width = w + 'px';
@@ -2180,10 +2542,10 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var below = vh - r.bottom - 12, above = r.top - 12;
     if (below >= 260 || below >= above) {
       pop.style.top = (r.bottom + 4) + 'px'; pop.style.bottom = 'auto';
-      pop.style.maxHeight = Math.max(160, Math.min(420, below)) + 'px';
+      pop.style.maxHeight = Math.max(160, Math.min(maxH || 420, below)) + 'px';
     } else {
       pop.style.top = 'auto'; pop.style.bottom = (vh - r.top + 4) + 'px';
-      pop.style.maxHeight = Math.max(160, Math.min(420, above)) + 'px';
+      pop.style.maxHeight = Math.max(160, Math.min(maxH || 420, above)) + 'px';
     }
   }
   function closePop(returnFocus) {
@@ -2201,7 +2563,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var items = optionsFor(kind);
     if (scope === 'modal' && M && M.keep) items = [{ value: KEEP, label: 'Ikke endre', text: 'Ikke endre', muted: true }].concat(items);
     var cur = currentValue(scope, trigger.dataset.ref, trigger.dataset.field);
-    P = { type: 'pick', trigger: trigger, kind: kind, scope: scope, ref: trigger.dataset.ref, field: trigger.dataset.field, items: items, q: '', showDesc: false, active: 0, cur: cur, view: items };
+    P = { type: 'pick', trigger: trigger, kind: kind, scope: scope, ref: trigger.dataset.ref, field: trigger.dataset.field, items: items, q: '', showDesc: kind === 'cgroupby', active: 0, cur: cur, view: items };
     var ci = -1; for (var i = 0; i < items.length; i++) if (items[i].value === cur) { ci = i; break; }
     P.active = ci >= 0 ? ci : 0;
     var search = items.length > 5;
@@ -2250,23 +2612,60 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     var ctx = P; closePop(false);
     applyPick(ctx, it.value);
   }
-  function openMenu(trigger, html, onChange) {
+  function openMenu(trigger, html, onChange, o) {
+    o = o || {};
     if (P && P.trigger === trigger) { closePop(true); return; }
     closePop(false);
-    P = { type: 'menu', trigger: trigger, onChange: onChange };
-    pop.className = 'c-pop c-menu'; pop.innerHTML = html; pop.hidden = false;
+    P = { type: 'menu', trigger: trigger, onChange: onChange, w: o.w || 300, maxH: o.maxH };
+    pop.className = 'c-pop c-menu' + (o.cls ? ' ' + o.cls : ''); pop.innerHTML = html; pop.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
-    placePop(trigger, 300, /^colsBtn/.test(trigger.id));
+    if (o.after) o.after();
+    placePop(trigger, P.w, /^colsBtn/.test(trigger.id), P.maxH);
     var f = pop.querySelector('input,button'); if (f) f.focus();
   }
+  var C_COL_LABELS = { period: 'Periodisering', dept: 'Avdeling', dim: 'Dimensjon', project: 'Prosjekt', sub: 'Underleveranse', budget: 'Budsjettpost', rebill: 'Viderefakturering' };
+  /* variant C: the gear lists the columns by category; a category's own box turns all its columns on or off */
+  function colsMenuCHtml() {
+    return '<h3>Velg kolonner</h3><p>Beskrivelse, beløp ekskl. mva, regnskapskonto og mva-kode vises alltid.</p>' +
+      '<div class="c-colmenu__cats">' + C_COL_CATS.map(function (cat) {
+        return '<fieldset class="c-colcat"><legend><label class="c-menu__row c-colcat__head"><input type="checkbox" class="c-check" data-colcat="' + cat.id + '">' + cat.label + '</label></legend>' +
+          cat.cols.map(function (c) { return '<label class="c-menu__row c-colcat__row"><input type="checkbox" class="c-check" data-col="' + c[0] + '">' + c[1] + '</label>'; }).join('') + '</fieldset>';
+      }).join('') + '</div>' +
+      '<div class="c-colmenu__foot"><button type="button" class="c-btn c-btn--tertiary c-btn--sm" data-menu="cols-reset">Tilbakestill</button><span>Valget huskes for neste faktura.</span></div>';
+  }
+  function syncColsMenuC() {
+    C_COL_CATS.forEach(function (cat) {
+      var on = cat.cols.filter(function (c) { return S.cols[c[0]]; }).length, cb = pop.querySelector('[data-colcat="' + cat.id + '"]');
+      if (cb) { cb.checked = on === cat.cols.length; cb.indeterminate = on > 0 && on < cat.cols.length; }
+      cat.cols.forEach(function (c) { var x = pop.querySelector('[data-col="' + c[0] + '"]'); if (x) x.checked = !!S.cols[c[0]]; });
+    });
+  }
+  function colsMenuApplyC() {
+    syncColsMenuC();
+    render({ focus: null });
+    if (P && P.trigger && !document.contains(P.trigger)) {
+      var nt = document.getElementById(P.trigger.id);
+      if (nt) { P.trigger = nt; nt.setAttribute('aria-expanded', 'true'); placePop(nt, P.w, true, P.maxH); }
+    }
+  }
+  function openColsMenuC(btn) {
+    openMenu(btn, colsMenuCHtml(), function (el) {
+      if (el.dataset.colcat) C_COL_CATS.filter(function (x) { return x.id === el.dataset.colcat; })[0].cols.forEach(function (c) { S.cols[c[0]] = el.checked; });
+      else if (el.dataset.col) S.cols[el.dataset.col] = el.checked;
+      else return;
+      colsMenuApplyC();
+    }, { w: 460, maxH: 600, cls: 'c-colmenu', after: syncColsMenuC });
+  }
   function openColsMenu(btn) {
-    var html = '<h3>Vis felt</h3><p>Prosjekt, avdeling og lokasjon vises også på kostnadene. Viderefakturering vises sammen med prosjekt.</p><div class="c-menu__list">' +
-      Object.keys(OPT_LABELS).map(function (k) { return '<label class="c-menu__row"><input type="checkbox" class="c-check" data-col="' + k + '"' + (S.cols[k] ? ' checked' : '') + '>' + OPT_LABELS[k] + '</label>'; }).join('') + '</div>';
+    if (DESIGN === 'C') { openColsMenuC(btn); return; }
+    var C = false, labels = OPT_LABELS;
+    var html = (C ? '<h3>Vis kolonner</h3><p>Beskrivelse, beløp, konto og mva-kode vises alltid.</p>' : '<h3>Vis felt</h3><p>Prosjekt, avdeling og lokasjon vises også på kostnadene. Viderefakturering vises sammen med prosjekt.</p>') + '<div class="c-menu__list">' +
+      Object.keys(labels).map(function (k) { return '<label class="c-menu__row"><input type="checkbox" class="c-check" data-col="' + k + '"' + (S.cols[k] ? ' checked' : '') + '>' + labels[k] + '</label>'; }).join('') + '</div>';
     openMenu(btn, html, function (el) {
       if (!el.dataset.col) return;
       S.cols[el.dataset.col] = el.checked;
       /* re-invoicing is shown next to the project, so turning it on shows the project too */
-      if (el.dataset.col === 'rebill' && el.checked && !S.cols.project) { S.cols.project = true; var pc = pop.querySelector('input[data-col="project"]'); if (pc) pc.checked = true; }
+      if (!C && el.dataset.col === 'rebill' && el.checked && !S.cols.project) { S.cols.project = true; var pc = pop.querySelector('input[data-col="project"]'); if (pc) pc.checked = true; }
       render({ focus: null });
       if (P && P.trigger && !document.contains(P.trigger)) {
         var nt = document.getElementById(P.trigger.id);
@@ -2276,7 +2675,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   }
   function openFilterMenu(btn) {
     var groups = DESIGN === 'C' ? cGroups() : getGroups();
-    var html = '<h3>Filtrer på kostnad</h3><div class="c-menu__list">' + groups.map(function (g, i) {
+    var html = '<h3>' + (DESIGN === 'C' && cViewMode() !== 'kontering' ? 'Filtrer på gruppe' : 'Filtrer på kostnad') + '</h3><div class="c-menu__list">' + groups.map(function (g, i) {
       return '<label class="c-menu__row"><input type="checkbox" class="c-check" data-fkey="' + esc(g.key) + '"' + (S.fkeys.has(g.key) ? ' checked' : '') + '>' + esc(groupName(groups, g.key)) + '<small>' + g.lines.length + '</small></label>';
     }).join('') + '</div><div><button type="button" class="c-btn c-btn--tertiary c-btn--sm" data-menu="clear">Nullstill filter</button></div>';
     openMenu(btn, html, function (el) {
@@ -2291,7 +2690,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   var M = null;
   function openModal(o) {
     closePop(false);
-    M = { values: o.values || {}, keep: !!o.keep, body: o.body, onOk: o.onOk, onAlt: o.onAlt, onAct: o.onAct, validate: o.validate, sumText: o.sumText, err: '', opener: document.activeElement };
+    M = { values: o.values || {}, keep: !!o.keep, body: o.body, onOk: o.onOk, onChange: o.onChange, onAlt: o.onAlt, onAct: o.onAct, validate: o.validate, sumText: o.sumText, err: '', opener: document.activeElement };
     var m = $('#modal');
     var close = '<button type="button" class="c-iconbtn' + (o.plain ? ' c-iconbtn--sm c-modal__close' : '') + '" data-m="close" aria-label="Lukk">' + ico('i-close', o.plain ? 'i16' : 'i24') + '</button>';
     m.innerHTML = '<div class="c-modal' + (o.wide ? ' c-modal--wide' : '') + (o.plain ? ' c-modal--plain' : '') + '" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="c-modal__head"><h2 id="mTitle">' + esc(o.title) + '</h2>' + close + '</div>' +
@@ -2308,7 +2707,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (op && document.contains(op)) op.focus();
   }
   function modalSel(field, v) {
-    var label = { account: 'Regnskapskonto', vat: 'Mva-kode', project: 'Prosjekt', dept: 'Avdeling', loc: 'Lokasjon', pmonth: 'Fra og med', pcount: 'Antall måneder', pacct: 'Periodiseringskonto' }[field];
+    var label = { account: 'Regnskapskonto', vat: 'Mva-kode', project: 'Prosjekt', dept: 'Avdeling', loc: 'Lokasjon', dim: 'Dimensjon', sub: 'Underleveranse', budget: 'Budsjettpost', pmonth: 'Fra og med', pcount: 'Antall måneder', pacct: 'Periodiseringskonto' }[field];
     var text = displayFor(field, v);
     var id = 'mf-' + field;
     return '<div class="c-ig"><span class="c-ig__label" id="' + id + '-l">' + label + '</span><button type="button" class="c-field c-field--lg" id="' + id + '" data-fk="' + id + '" data-pop="' + field + '" data-scope="modal" data-ref="m" data-field="' + field + '" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="' + id + '-l ' + id + '"><span class="c-field__val' + (v === KEEP ? ' is-empty' : '') + '">' + esc(text) + '</span>' + ico('i-chev20') + '</button></div>';
@@ -2318,20 +2717,27 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     openModal({
       title: 'Endre ' + ids.length + ' ' + (ids.length === 1 ? 'ordrelinje' : 'ordrelinjer'),
       primary: 'Lagre endringer', keep: true,
-      values: { account: KEEP, vat: KEEP, project: KEEP, dept: KEEP, loc: KEEP },
+      values: DESIGN === 'C' ? { account: KEEP, vat: KEEP, dept: KEEP, dim: KEEP, project: KEEP, sub: KEEP, budget: KEEP } : { account: KEEP, vat: KEEP, project: KEEP, dept: KEEP, loc: KEEP },
       body: function (m) {
         return '<p>Felt som står som «Ikke endre» beholder verdien på hver ordrelinje.</p><div class="c-fields">' +
-          ['account', 'vat', 'project', 'dept', 'loc'].map(function (f) { return modalSel(f, m.values[f]); }).join('') + '</div>' +
+          Object.keys(m.values).map(function (f) { return modalSel(f, m.values[f]); }).join('') + '</div>' +
           '<div class="c-note">Ordrelinjer med samme konto, mva-kode og dimensjoner blir én kostnad. En ny kombinasjon gir en ny kostnad.</div>';
       },
       onOk: function (m) { applyEdit(ids, m.values); }
     });
   }
   function openPeriod(target) {
-    var cur = null, net = 0, title;
+    var cur = null, net = 0, title, pick = null, pre = null;
     if (target.scope === 'cgroup') {
       var pcg = cGroup(target.ref); if (!pcg) return;
       cur = pcg.period; net = pcg.net; title = 'Periodiser «' + pcg.desc + '»';
+      /* variant C: the whole cost, or only some of its order lines, which then become a cost of their own.
+         Lines ticked in the table are the suggestion */
+      if (DESIGN === 'C' && cMode() === 'kontering' && pcg.lines.length > 1) {
+        pick = pcg.lines;
+        var selIn = pick.filter(function (l) { return S.sel.has(l.id); });
+        if (selIn.length && selIn.length < pick.length) pre = new Set(selIn.map(function (l) { return l.id; }));
+      }
     } else if (target.scope === 'group') {
       var gs = getGroups(), gi = groupIndex(target.ref), g = gs[gi]; if (!g) return;
       cur = g.period; net = g.net; title = 'Periodiser kostnad ' + (gi + 1);
@@ -2343,15 +2749,43 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       cur = ls[0].period; net = ls.reduce(function (s, l) { return s + l.net; }, 0);
       title = 'Periodiser ' + ls.length + ' ' + (ls.length === 1 ? 'ordrelinje' : 'ordrelinjer');
     }
+    var vals = { pmonth: cur ? cur.from : C_PER_DEFAULT.from, pcount: String(cur ? cur.months : C_PER_DEFAULT.months), pacct: cur ? cur.acct : C_PER_DEFAULT.acct };
+    if (pick) { vals.pscope = pre ? 'some' : 'all'; pick.forEach(function (l) { vals['pl' + l.id] = !!(pre && pre.has(l.id)); }); }
+    var chosen = function (m) { return pick.filter(function (l) { return m.values['pl' + l.id]; }); };
+    var noteText = function (m) {
+      var some = !!pick && m.values.pscope === 'some', ls = some ? chosen(m) : null;
+      if (some && !ls.length) return 'Velg ordrelinjene som skal periodiseres.';
+      var nn = some ? ls.reduce(function (s, l) { return s + l.net; }, 0) : net, n = +m.values.pcount, per = Math.round(nn / n);
+      return 'NOK ' + fmt(nn) + ' ekskl. mva fordeles med NOK ' + fmt(per) + ' per måned i ' + periodLabel({ from: m.values.pmonth, months: n }) + '. Mva føres på fakturadatoen.' +
+        (some && ls.length < pick.length ? ' ' + (ls.length === 1 ? 'Ordrelinjen' : 'De ' + ls.length + ' ordrelinjene') + ' blir en egen kostnad.' : '');
+    };
     openModal({
       title: title, primary: 'Periodiser', tertiary: cur ? 'Fjern periodisering' : null,
-      values: { pmonth: cur ? cur.from : '2026-10', pcount: String(cur ? cur.months : 12), pacct: cur ? cur.acct : '1749' },
+      values: vals,
       body: function (m) {
-        var n = +m.values.pcount, per = Math.round(net / n);
-        return '<div class="c-fields">' + modalSel('pmonth', m.values.pmonth) + modalSel('pcount', m.values.pcount) + '</div>' + modalSel('pacct', m.values.pacct) +
-          '<div class="c-note">NOK ' + fmt(net) + ' ekskl. mva fordeles med NOK ' + fmt(per) + ' per måned i ' + periodLabel({ from: m.values.pmonth, months: n }) + '. Mva føres på fakturadatoen.</div>';
+        var scope = '';
+        if (pick) {
+          var r = function (v, label) { return '<label class="c-radio"><input type="radio" name="pscope" value="' + v + '" data-mv="pscope"' + (m.values.pscope === v ? ' checked' : '') + '>' + label + '</label>'; };
+          scope = '<fieldset class="c-optlist c-perscope"><legend class="c-ig__label">Hva skal periodiseres?</legend>' + r('all', 'Hele kostnaden (' + nLines(pick.length) + ')') + r('some', 'Bare noen av ordrelinjene') + '</fieldset>' +
+            (m.values.pscope === 'some' ? '<div class="c-perlines" role="group" aria-label="Ordrelinjer som skal periodiseres">' + pick.map(function (l) {
+              return '<label class="c-perline"><input type="checkbox" class="c-check" data-mv="pl' + l.id + '"' + (m.values['pl' + l.id] ? ' checked' : '') + '><span class="c-perline__t">' + esc(l.desc || 'Uten beskrivelse') + '</span><span class="c-perline__a num">' + fmt(l.net) + '</span></label>';
+            }).join('') + '</div>' : '');
+        }
+        return (m.err ? '<div class="c-alert c-alert--error" role="alert">' + ico('i-warning') + '<div>' + esc(m.err) + '</div></div>' : '') + scope +
+          '<div class="c-fields">' + modalSel('pmonth', m.values.pmonth) + modalSel('pcount', m.values.pcount) + '</div>' + modalSel('pacct', m.values.pacct) +
+          '<div class="c-note" id="perNote">' + esc(noteText(m)) + '</div>';
       },
-      onOk: function (m) { applyPeriod(target, { from: m.values.pmonth, months: +m.values.pcount, acct: m.values.pacct }); },
+      onChange: function (m, el) {
+        if (el.dataset.mv === 'pscope') { m.err = ''; refreshModal(); var rb = $('#mBody input[data-mv="pscope"][value="' + m.values.pscope + '"]'); if (rb) rb.focus(); return; }
+        if (m.err) { m.err = ''; var al = $('#mBody .c-alert--error'); if (al) al.remove(); }
+        var pn = $('#perNote'); if (pn) pn.textContent = noteText(m);
+      },
+      validate: function (m) { return pick && m.values.pscope === 'some' && !chosen(m).length ? 'Velg minst én ordrelinje som skal periodiseres.' : ''; },
+      onOk: function (m) {
+        var per = { from: m.values.pmonth, months: +m.values.pcount, acct: m.values.pacct };
+        if (pick && m.values.pscope === 'some') applyPeriod({ scope: 'lines', ids: chosen(m).map(function (l) { return l.id; }), from: target.ref }, per);
+        else applyPeriod(target, per);
+      },
       onAlt: function () { applyPeriod(target, null); }
     });
   }
@@ -2558,10 +2992,13 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     closePop(false);
     if (M) { var m = $('#modal'); m.hidden = true; m.innerHTML = ''; M = null; }
     if (LD.open) hideLines();
-    var cols = null;
-    if (S) { payFromDom(); if (S.design === DESIGN) cols = S.cols; }   /* not across variants: each starts with its own fields */
+    var cols = null, keep = null;
+    if (S) { payFromDom(); if (S.design === DESIGN) { cols = S.cols; keep = { g: S.cGroup, w: S.cDescW }; } }   /* not across variants: each starts with its own fields */
+    if (S && S.cx) cxClose(false, true);
     INV = inv; S = STATES[sk(id)]; undoStack = UNDOS[sk(id)];
     if (cols) S.cols = cols;                     /* the gear's field choices follow the user to the next invoice */
+    if (keep && keep.g && S.cGroup !== keep.g) { S.cGroup = keep.g; S.cOpen = new Set(); }
+    if (keep && keep.w) S.cDescW = keep.w;
     $('#toasts').innerHTML = '';
     clearTimeout(savedT); $('#savedText').textContent = 'Saved';
     invoiceToDom(); payToDom();
@@ -2639,6 +3076,28 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     }
   }
 
+  /* ---------- variant C: the cost table in a full-width window ----------
+     The same table moves into the window and back, so every function keeps working there. */
+  function cxOpen() {
+    if (DESIGN !== 'C' || S.cx) return;
+    closePop(false);
+    S.cx = true;
+    $('#cxSub').textContent = INV.supplier + ' · faktura ' + INV.no;
+    $('#cxBody').appendChild($('#costBody'));
+    $('#cxDlg').hidden = false;
+    document.body.classList.add('has-cx');
+    render({ focus: 'cx' });
+  }
+  function cxClose(focus, quiet) {
+    if (!S || !S.cx) return;
+    closePop(false);
+    S.cx = false;
+    $('#costs').appendChild($('#costBody'));
+    $('#cxDlg').hidden = true;
+    document.body.classList.remove('has-cx');
+    if (!quiet) render({ focus: focus === false ? null : 'cx' });
+  }
+
   /* ---------- Bokfør: check, post, open the next invoice in the queue ---------- */
   function postProblems() {
     if (DESIGN === 'C') return cPostProblems();
@@ -2673,6 +3132,9 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       render({ focus: null });
       refreshPostErr(true);
       var f = probs[0].fk ? document.querySelector('[data-fk="' + probs[0].fk + '"]') : null, da = $('#costBody [data-diff]');
+      if (!f && DESIGN === 'C' && /^l\d+-/.test(probs[0].fk || '')) {
+        var fl = lineById(+probs[0].fk.slice(1).split('-')[0]); if (fl) { S.cOpen.add(viewKeyOf(fl)); render({ focus: null }); refreshPostErr(true); f = document.querySelector('[data-fk="' + probs[0].fk + '"]'); }
+      }
       if (f) { f.focus({ preventScroll: true }); f.scrollIntoView({ block: 'center' }); }
       else (da && !da.hidden ? da : $('#costs')).scrollIntoView({ block: 'center' });
       return;
@@ -2696,6 +3158,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     closePop(false);
     if (M) { var m = $('#modal'); m.hidden = true; m.innerHTML = ''; M = null; }
     if (LD.open) hideLines();
+    if (S && S.cx) cxClose(false, true);
     resetAll(); S = null;
     L.bucket = null; L.sideOpen = false;
     $('#globalSearch').value = '';
@@ -2711,6 +3174,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (pop.contains(t)) {
       var opt = t.closest('.c-opt'); if (opt) { choose(+opt.dataset.i); return; }
       if (t.closest('#popDesc')) { P.showDesc = !P.showDesc; t.closest('#popDesc').firstChild.nodeValue = P.showDesc ? 'Skjul beskrivelse' : 'Vis beskrivelse'; drawList(); return; }
+      if (t.closest('[data-menu="cols-reset"]')) { S.cols = cDefaultCols(); colsMenuApplyC(); return; }
       if (t.closest('[data-menu="clear"]')) { S.fkeys.clear(); $$('input[data-fkey]', pop).forEach(function (c) { c.checked = false; }); var qk = $('#quick'); if (qk) qk.innerHTML = ''; renderRows(); }
       return;
     }
@@ -2736,6 +3200,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     }
     if (t.closest('#logoBtn')) { restart(); return; }
     if (t.id === 'linesDlg') { closeLines(); return; }
+    if (t.id === 'cxDlg') { cxClose(); return; }
     var dz = t.closest('[data-design]');
     if (dz) { var dd = dz.dataset.design; switchDesign(dd); var nd = $('[data-design="' + dd + '"]'); if (nd) nd.focus(); return; }
     var inv = t.closest('[data-inv]');
@@ -2764,6 +3229,9 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
         case 'filter': openFilterMenu(act); break;
         case 'regroup': regroup(); break;
         case 'c-collapse': cCollapse(act.dataset.ref); break;
+        case 'c-toggle-all': cToggleAll(); break;
+        case 'cx-toggle': if (S.cx) cxClose(); else cxOpen(); break;
+        case 'cx-close': cxClose(); break;
         case 'c-showlines': cShowLines(act.dataset.ref); break;
         case 'unfilter': S.fkeys.delete(act.dataset.ref); var qk2 = $('#quick'); if (qk2) qk2.innerHTML = chipsView(); renderRows(); focusFk('filter'); break;
         case 'reset-filter': S.search = ''; S.fkeys.clear(); render({ focus: 'search' }); break;
@@ -2827,7 +3295,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       if (mk) { mk.disabled = !l.rebill; mk.value = l.markup; mk.closest('.c-cf').classList.toggle('is-disabled', !l.rebill); }
       markSaved(); return;
     }
-    if (M && el.dataset && el.dataset.mv) { M.values[el.dataset.mv] = el.type === 'checkbox' ? el.checked : el.value; return; }
+    if (M && el.dataset && el.dataset.mv) { M.values[el.dataset.mv] = el.type === 'checkbox' ? el.checked : el.value; if (M.onChange) M.onChange(M, el); return; }
     if (el.name === 'payto') { $('#lblPayAcct').textContent = el.value === 'ut' ? 'IBAN' : 'IBAN/kontonummer'; markSaved(); return; }
     if (el.dataset && el.dataset.field && el.dataset.scope) { commitInput(el); if (el.dataset.field === 'desc') markSaved(); return; }
     if (el.closest && el.closest('#payForm')) markSaved();
@@ -2864,6 +3332,19 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
         else if (!e.shiftKey && document.activeElement === fl[fl.length - 1]) { e.preventDefault(); fl[0].focus(); }
       }
     }
+    if (!M && S.cx && e.key === 'Tab') {
+      var fx = $$('#cxDlg button, #cxDlg input, #cxDlg [tabindex="0"]').filter(function (x) { return !x.disabled && x.offsetParent; });
+      if (fx.length) {
+        if (e.shiftKey && document.activeElement === fx[0]) { e.preventDefault(); fx[fx.length - 1].focus(); }
+        else if (!e.shiftKey && document.activeElement === fx[fx.length - 1]) { e.preventDefault(); fx[0].focus(); }
+      }
+    }
+    if (el.classList && el.classList.contains('c-colrs')) {
+      var step = e.shiftKey ? 64 : 16, w0 = S.cDescW || C_DESC_W, w1 = null;
+      if (e.key === 'ArrowLeft') w1 = w0 - step; else if (e.key === 'ArrowRight') w1 = w0 + step;
+      else if (e.key === 'Home') w1 = C_DESC_MIN; else if (e.key === 'End') w1 = C_DESC_MAX;
+      if (w1 != null) { e.preventDefault(); setDescW(w1); markSaved(); return; }
+    }
     if (M && e.key === 'Tab') {
       var f = $$('#modal button, #modal input').filter(function (x) { return !x.disabled && x.offsetParent; });
       if (f.length) {
@@ -2876,6 +3357,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
       if (M) { closeModal(); return; }
       if (S.sel.size && linesVisible()) { S.sel.clear(); renderBar(); renderRows(); focusFk('filter'); return; }
       if (LD.open) { closeLines(); return; }
+      if (S.cx) { cxClose(); return; }
       if (L.sideOpen) { L.sideOpen = false; applyLayout(); return; }
     }
     if (el.classList && el.classList.contains('c-tab') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
@@ -2897,7 +3379,7 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
   document.addEventListener('scroll', function (e) {
     var t = e.target;
     if (t && t.id === 'tablewrap') {
-      t.classList.toggle('is-scrolled', t.scrollLeft > 0);
+      syncEdges();
       var hb = $('#hbar'); if (hb && Math.abs(hb.scrollLeft - t.scrollLeft) > 1) hb.scrollLeft = t.scrollLeft;
     } else if (t && t.id === 'hbar') {
       var tw = $('#tablewrap'); if (tw && Math.abs(tw.scrollLeft - t.scrollLeft) > 1) tw.scrollLeft = t.scrollLeft;
@@ -2905,11 +3387,11 @@ tbody tr:hover .c-cf.is-disabled,tbody tr:focus-within .c-cf.is-disabled{backgro
     if (!P || pop.contains(e.target)) return;
     var r = P.trigger.getBoundingClientRect();
     if (r.bottom < 0 || r.top > window.innerHeight) closePop(false);
-    else placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id));
+    else placePop(P.trigger, P.type === 'menu' ? P.w : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id), P.maxH);
   }, true);
   window.addEventListener('resize', function () {
     applyLayout(); pdfLayout();
-    if (P) placePop(P.trigger, P.type === 'menu' ? 300 : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id));
+    if (P) placePop(P.trigger, P.type === 'menu' ? P.w : ((P.kind === 'account' || P.kind === 'vat') ? 420 : 280), /^colsBtn/.test(P.trigger.id), P.maxH);
   });
   /* Re-fit the attachment when its panel changes size. The work waits for the next frame and only runs when
      the size really changed, so resizing the pages can never feed back into the observer
